@@ -1,3 +1,3 @@
-import EnumRouter from "../enums/EnumRouter";
+import EnumRouter from "@/models/enums/EnumRouter";
 
 export { EnumRouter };

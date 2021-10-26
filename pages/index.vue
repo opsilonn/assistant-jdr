@@ -26,7 +26,7 @@ export default {
   mixins: [MixinCss],
 
   data: () => ({
-    items: []
+    items: [],
   }),
 
   mounted() {
@@ -35,6 +35,6 @@ export default {
 
   head() {
     return { title: "index" };
-  }
+  },
 };
 </script>

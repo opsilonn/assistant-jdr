@@ -1,4 +1,4 @@
-# assistant-jdr
+# assistant-jdr-web
 
 ## Build Setup
 
