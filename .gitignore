@@ -91,3 +91,6 @@ sw.*
 
 # Local server configuration
 local.server.config.js
+
+# les fichiers mp3 (trop lourds, à télécharger individuellement)
+*.mp3
