@@ -7,17 +7,13 @@
     <div class="d-flex justify-space-around">
       <!-- Bouton relancer -->
       <v-btn @click="applyOrientation()">
-        <v-icon left>
-          mdi-dice-6-outline
-        </v-icon>
+        <v-icon left> mdi-dice-6-outline </v-icon>
         Relancer
       </v-btn>
 
       <!-- Bouton réinitialiser -->
       <v-btn @click="resetForm()">
-        <v-icon left>
-          mdi-autorenew
-        </v-icon>
+        <v-icon left> mdi-autorenew </v-icon>
         Réinitialiser
       </v-btn>
     </div>
@@ -67,7 +63,7 @@
           </v-col>
         </v-row>
 
-        <h3 class="text-center">Total : {{ getTotal }}</h3>
+        <h3 class="text-center pa-4">Total : {{ getTotal }}</h3>
 
         <v-divider class="pa-4" />
 
@@ -111,6 +107,7 @@
 
 <script>
 // Imports
+import { mapActions, mapState, mapGetters } from "vuex";
 import Investigateur from "@/models/models/Investigateur";
 import MixinDice from "@/mixins/mixin-dice";
 import MixinRules from "@/mixins/mixin-rules";
@@ -137,62 +134,84 @@ export default {
       "50 => 59 : 3 tests expériences en EDU ; -10 FOR / CON / DEX ; -10 APP",
       "60 => 69 : 4 tests expériences en EDU ; -20 FOR / CON / DEX ; -15 APP",
       "70 => 79 : 4 tests expériences en EDU ; -40 FOR / CON / DEX ; -20 APP",
-      "80 => 89 : 4 tests expériences en EDU ; -80 FOR / CON / DEX ; -25 APP"
+      "80 => 89 : 4 tests expériences en EDU ; -80 FOR / CON / DEX ; -25 APP",
     ],
 
     itemsCompétenceCombat: [
-      { nom: "Corps-à-corps", valeur: 25 },
-      { nom: "Combat à distance - arme de poing", valeur: 20 },
-      { nom: "Corps-à-corps", valeur: 25 }
+      { nom: "Corps-à-corps", valeur: 25, min: 20, écart: 20 },
+      {
+        nom: "Combat à distance - arme de poing",
+        valeur: 20,
+        min: 20,
+        écart: 20,
+      },
+      { nom: "Combat à distance - fusil", valeur: 25, min: 15, écart: 20 },
     ],
-    itemsCompétences: []
+    itemsCompétenceSocial: [
+      { nom: "Baratin", valeur: 5, min: 30, écart: 20, indexes: [0, 2] },
+      { nom: "Charme", valeur: 15, min: 30, écart: 20, indexes: [0, 1, 2] },
+      { nom: "Intimidation", valeur: 15, min: 30, écart: 20, indexes: [0, 1] },
+      { nom: "Persuasion", valeur: 10, min: 30, écart: 20, indexes: [0, 2] },
+      {
+        nom: "Psychologie",
+        valeur: 10,
+        min: 30,
+        écart: 20,
+        indexes: [0, 1, 2],
+      },
+    ],
+    itemsCompétences: [],
   }),
 
   computed: {
+    ...mapGetters("competences", ["getCompetencesBySocial"]),
+
     /** */
     getTotal() {
       return Object.keys(this.statsDisplayed.caractéristiques).reduce(
         (previous, key) => previous + this.statsDisplayed.caractéristiques[key],
         0
       );
-    }
+    },
   },
 
   watch: {
-    "statsBase.caractéristiques.constitution": function(val) {
+    "statsBase.caractéristiques.constitution": function (val) {
       this.setPV();
     },
-    "statsBase.caractéristiques.dextérité": function(val) {
+    "statsBase.caractéristiques.dextérité": function (val) {
       this.setMouvement();
       const newVal = Math.floor(val / 2);
       this.statsBase.autres.esquive = newVal;
       this.statsDisplayed.autres.esquive = newVal;
     },
-    "statsBase.caractéristiques.force": function(val) {
+    "statsBase.caractéristiques.force": function (val) {
       this.setMouvement();
       this.setCarrure();
       this.setImpact();
     },
-    "statsBase.caractéristiques.pouvoir": function(val) {
+    "statsBase.caractéristiques.pouvoir": function (val) {
       this.statsBase.autres.mana = val;
       this.statsBase.autres.sanité = val;
       this.statsDisplayed.autres.mana = val;
       this.statsDisplayed.autres.sanité = val;
     },
-    "statsBase.caractéristiques.taille": function(val) {
+    "statsBase.caractéristiques.taille": function (val) {
       this.setMouvement();
       this.setPV();
       this.setCarrure();
       this.setImpact();
-    }
+    },
   },
 
   mounted() {
+    this.fetchAllCompetences();
     this.resetForm();
-    this.setPV();
   },
 
   methods: {
+    ...mapActions("competences", ["fetchAllCompetences"]),
+
     /** Resets everything in the form */
     resetForm() {
       this.orientation = this.itemsOrientation[0];
@@ -213,7 +232,7 @@ export default {
           force: 50,
           intelligence: 50,
           taille: 50,
-          pouvoir: 50
+          pouvoir: 50,
         },
         autres: {
           mouvement: 8,
@@ -223,8 +242,8 @@ export default {
           sanité: 50,
           impact: 0,
           carrure: 0,
-          esquive: 20
-        }
+          esquive: 20,
+        },
       };
     },
 
@@ -368,29 +387,37 @@ export default {
       }
     },
 
+    /** */
     applyCompétences() {
       // On réinitialise les compétences
       this.compétences = [];
 
+      console.log(this.getCompetencesBySocial());
+
+      //On récupère l'index d'orientation choisi
+      const index = this.itemsOrientation.indexOf(this.orientation);
+
       // 1 - COMBAT
       // On crée une copie des compétences de combat
       let shuffledCombat = this.shuffleArray(this.itemsCompétenceCombat);
+      const rnd = this.rollDice(1, 2);
 
-      //On récupère l'index choisi
-      const index = this.itemsOrientation.indexOf(this.orientation);
-      const arr = [
-        { cpt: 2, min: 20, écart: 20 },
-        { cpt: 2, min: 30, écart: 20 },
-        { cpt: 1, min: 25, écart: 30 }
-      ];
-
-      // On ajoute autant de compétences que prévu
-      for (let i = 0; i < arr[index].cpt; i++) {
-        const compétence = shuffledCombat.shift();
-        compétence.valeur +=
-          arr[index].min + this.rollDice(1, arr[index].écart);
-        this.compétences.push(compétence);
+      // On ajoute 1 ou 2 compétences
+      for (let i = 0; i < rnd; i++) {
+        let compCombat = shuffledCombat.shift();
+        compCombat.valeur +=
+          compCombat.min + this.rollDice(1, compCombat.écart);
+        this.compétences.push(compCombat);
       }
+
+      // 2 - SOCIAL
+      const compSocial = this.shuffleArray(
+        this.itemsCompétenceSocial.filter((item) =>
+          item.indexes.includes(index)
+        )
+      ).shift();
+      compSocial.valeur += compSocial.min + this.rollDice(1, compSocial.écart);
+      this.compétences.push(compSocial);
     },
 
     /** */
@@ -476,11 +503,11 @@ export default {
 
     shuffleArray(arr) {
       return JSON.parse(JSON.stringify(arr)).sort(() => Math.random() - 0.5);
-    }
+    },
   },
 
   head() {
     return { title: "L'appel de Cthulhu" };
-  }
+  },
 };
 </script>

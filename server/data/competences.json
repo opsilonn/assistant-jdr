@@ -1,0 +1,9 @@
+[
+  {
+    "id": 1,
+    "name": "Intimidation",
+    "min": 15,
+    "range": 20,
+    "bIsSocial": true
+  }
+]

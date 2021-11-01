@@ -23,6 +23,8 @@ export default {
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
 
+  serverMiddleware: ["~/server/server.js"],
+
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [],
 
@@ -36,7 +38,7 @@ export default {
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
-  modules: [],
+  modules: ["@nuxtjs/axios"],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
   vuetify: {
