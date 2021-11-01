@@ -1,9 +1,9 @@
 import { Router } from "express";
-import getCompetence from "../controllers/get.competence.js";
-import getCompetences from "../controllers/get.competences.js";
-import postCompetence from "../controllers/post.competence.js";
-import putCompetence from "../controllers/put.competence.js";
-import deleteCompetence from "../controllers/delete.competence.js";
+import getCompetence from "../controllers/competences/get.competence.js";
+import getCompetences from "../controllers/competences/get.competences.js";
+import postCompetence from "../controllers/competences/post.competence.js";
+import putCompetence from "../controllers/competences/put.competence.js";
+import deleteCompetence from "../controllers/competences/delete.competence.js";
 
 const router = Router();
 router.get("/competence/:competenceId", getCompetence);

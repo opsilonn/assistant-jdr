@@ -1,4 +1,4 @@
-import Competence from "../models/competence.model.js";
+import Competence from "../../models/competence.model.js";
 
 /**
  * @param { import('express').Request } req

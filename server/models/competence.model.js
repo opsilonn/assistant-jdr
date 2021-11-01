@@ -15,6 +15,8 @@ export default class Competence {
   min;
   /** @type {Number} */
   range;
+  /** @type {Array[Number]} */
+  orientationsIndexes;
   /** @type {Boolean} */
   bIsCombat;
   /** @type {Boolean} */
@@ -29,6 +31,7 @@ export default class Competence {
     this.name = newCompetence.name;
     this.min = newCompetence.min;
     this.range = newCompetence.range;
+    this.orientationsIndexes = newCompetence.orientationsIndexes;
     this.bIsCombat = !!newCompetence.bIsCombat;
     this.bIsSocial = !!newCompetence.bIsSocial;
   }

@@ -3,8 +3,17 @@ const state = () => ({
 });
 
 const getters = {
-  getCompetencesBySocial: (state) => () =>
+  /** */
+  getCompetencesCombat: (state) => () =>
+    state.competences.filter((_) => _.bIsCombat),
+
+  /** */
+  getCompetencesSocial: (state) => () =>
     state.competences.filter((_) => _.bIsSocial),
+
+  /** */
+  getCompetencesAutre: (state) => () =>
+    state.competences.filter((_) => !_.bIsCombat && !_.bIsSocial),
 };
 
 const mutations = {
@@ -23,6 +32,7 @@ const actions = {
   async fetchAllCompetences({ commit }) {
     const competences = await this.$axios.$get("/api/competences");
     competences.forEach((t) => commit("addCompetence", t));
+    console.log(competences);
   },
 
   async createCompetence({ commit }, { description }) {

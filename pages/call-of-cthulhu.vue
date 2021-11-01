@@ -94,7 +94,7 @@
 
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title v-text="compétence.nom" />
+                <v-list-item-title v-text="compétence.name" />
               </v-list-item-content>
               <v-list-item-action v-text="compétence.valeur" />
             </v-list-item>
@@ -108,7 +108,6 @@
 <script>
 // Imports
 import { mapActions, mapState, mapGetters } from "vuex";
-import Investigateur from "@/models/models/Investigateur";
 import MixinDice from "@/mixins/mixin-dice";
 import MixinRules from "@/mixins/mixin-rules";
 
@@ -136,35 +135,15 @@ export default {
       "70 => 79 : 4 tests expériences en EDU ; -40 FOR / CON / DEX ; -20 APP",
       "80 => 89 : 4 tests expériences en EDU ; -80 FOR / CON / DEX ; -25 APP",
     ],
-
-    itemsCompétenceCombat: [
-      { nom: "Corps-à-corps", valeur: 25, min: 20, écart: 20 },
-      {
-        nom: "Combat à distance - arme de poing",
-        valeur: 20,
-        min: 20,
-        écart: 20,
-      },
-      { nom: "Combat à distance - fusil", valeur: 25, min: 15, écart: 20 },
-    ],
-    itemsCompétenceSocial: [
-      { nom: "Baratin", valeur: 5, min: 30, écart: 20, indexes: [0, 2] },
-      { nom: "Charme", valeur: 15, min: 30, écart: 20, indexes: [0, 1, 2] },
-      { nom: "Intimidation", valeur: 15, min: 30, écart: 20, indexes: [0, 1] },
-      { nom: "Persuasion", valeur: 10, min: 30, écart: 20, indexes: [0, 2] },
-      {
-        nom: "Psychologie",
-        valeur: 10,
-        min: 30,
-        écart: 20,
-        indexes: [0, 1, 2],
-      },
-    ],
     itemsCompétences: [],
   }),
 
   computed: {
-    ...mapGetters("competences", ["getCompetencesBySocial"]),
+    ...mapGetters("competences", [
+      "getCompetencesCombat",
+      "getCompetencesSocial",
+      "getCompetencesAutre",
+    ]),
 
     /** */
     getTotal() {
@@ -392,32 +371,41 @@ export default {
       // On réinitialise les compétences
       this.compétences = [];
 
-      console.log(this.getCompetencesBySocial());
+      console.log(this.getCompetencesSocial());
 
       //On récupère l'index d'orientation choisi
       const index = this.itemsOrientation.indexOf(this.orientation);
 
       // 1 - COMBAT
       // On crée une copie des compétences de combat
-      let shuffledCombat = this.shuffleArray(this.itemsCompétenceCombat);
-      const rnd = this.rollDice(1, 2);
+      let shuffledCombat = this.shuffleArray([...this.getCompetencesCombat()]);
+      let rnd = this.rollDice(1, 2);
 
       // On ajoute 1 ou 2 compétences
       for (let i = 0; i < rnd; i++) {
         let compCombat = shuffledCombat.shift();
-        compCombat.valeur +=
-          compCombat.min + this.rollDice(1, compCombat.écart);
+        compCombat.valeur = compCombat.min + this.rollDice(1, compCombat.range);
         this.compétences.push(compCombat);
       }
 
       // 2 - SOCIAL
-      const compSocial = this.shuffleArray(
-        this.itemsCompétenceSocial.filter((item) =>
-          item.indexes.includes(index)
-        )
-      ).shift();
-      compSocial.valeur += compSocial.min + this.rollDice(1, compSocial.écart);
+      const compSocial = this.shuffleArray([
+        ...this.getCompetencesSocial(),
+      ]).shift();
+      compSocial.valeur = compSocial.min + this.rollDice(1, compSocial.range);
       this.compétences.push(compSocial);
+
+      // 3 - AUTRES
+      // On crée une copie des compétences autres, dont on sélectionne entre 5 et 10
+      let shuffledAutre = this.shuffleArray([...this.getCompetencesAutre()]);
+      rnd = 5 + this.rollDice(1, 5);
+
+      // On ajoute 1 ou 2 compétences
+      for (let i = 0; i < rnd; i++) {
+        let compAutre = shuffledAutre.shift();
+        compAutre.valeur = compAutre.min + this.rollDice(1, compAutre.range);
+        this.compétences.push(compAutre);
+      }
     },
 
     /** */
