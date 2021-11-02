@@ -107,7 +107,7 @@
 
 <script>
 // Imports
-import { mapActions, mapState, mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import MixinDice from "@/mixins/mixin-dice";
 import MixinRules from "@/mixins/mixin-rules";
 
@@ -139,6 +139,7 @@ export default {
   }),
 
   computed: {
+    // Imports
     ...mapGetters("competences", [
       "getCompetencesCombat",
       "getCompetencesSocial",
@@ -189,6 +190,7 @@ export default {
   },
 
   methods: {
+    // Imports
     ...mapActions("competences", ["fetchAllCompetences"]),
 
     /** Resets everything in the form */

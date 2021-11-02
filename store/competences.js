@@ -32,7 +32,6 @@ const actions = {
   async fetchAllCompetences({ commit }) {
     const competences = await this.$axios.$get("/api/competences");
     competences.forEach((t) => commit("addCompetence", t));
-    console.log(competences);
   },
 
   async createCompetence({ commit }, { description }) {
