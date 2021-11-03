@@ -46,8 +46,8 @@ export default class Audio {
         // Add accordingly to file or folder
         if (file.includes(".")) {
           folder.files.push({
-            name: file.substring(0, file.indexOf(".")),
-            path: `${path.substring(1, path.length)}/${file}`,
+            name: file.substring(0, file.lastIndexOf(".")),
+            path: `${path}/${file}`.replace("./static", ""),
           });
         } else {
           folder.folders.push(this.readFolder(path + "/" + file));

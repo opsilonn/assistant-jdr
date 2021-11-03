@@ -24,19 +24,19 @@ import LayoutFooter from "@/components/layout-footer";
 export default {
   components: {
     LayoutAppBar,
-    LayoutFooter
+    LayoutFooter,
   },
 
   data: () => ({
     src: "",
     srcDefault: "",
-    showFooter: false
+    showFooter: false,
   }),
 
   watch: {
     $route(to, from) {
       this.setSourceImage();
-    }
+    },
   },
 
   mounted() {
@@ -47,10 +47,10 @@ export default {
     /** Sets the value of the image to display, if any */
     setSourceImage() {
       let key = Object.keys(EnumRouter).find(
-        key => EnumRouter[key].route === this.$route.path
+        (key) => EnumRouter[key].route === this.$route.path
       );
       this.src = !!EnumRouter[key] ? EnumRouter[key].src : this.srcDefault;
-    }
-  }
+    },
+  },
 };
 </script>
