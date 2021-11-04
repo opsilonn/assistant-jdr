@@ -7,6 +7,8 @@ Actuellement, il contient :
 
 ## Installation du projet
 
+Node.js est nécessaire pour faire fonctionner le projet, et peut être [téléchargé ici](https://nodejs.org/en)
+
 ```bash
 # Installer les dépendances
 $ npm install
