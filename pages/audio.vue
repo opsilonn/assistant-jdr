@@ -6,6 +6,7 @@
     <!-- data loaded ! -->
     <div v-else>
       <!-- Tab selection -->
+      <!-- TO DO : the tabs should stay displayed, and not be scrolled -->
       <v-tabs v-model="selectedTab" grow icons-and-text>
         <v-tab v-for="(tab, i) in tabs" :key="`tab_${i}`">
           <span class="shrink d-none d-sm-flex">{{ tab.title }}</span>
@@ -35,7 +36,8 @@
         </v-tab-item>
       </v-tabs-items>
 
-      <br v-for="n in 5" :key="n" />
+      <!-- TO DO : remove this "br" tag and find a proper way to ensure that the footer never covers any data -->
+      <br v-for="n in 10" :key="n" />
 
       <!-- Dashboard (fixed to the bottom) -->
       <v-footer fixed padless>
@@ -64,6 +66,7 @@
                 <v-row align="center">
                   <!-- slider sound -->
                   <v-col cols="6">
+                    <!-- TO DO : center vertically the slider -->
                     <v-slider
                       v-model="tab.volume"
                       track-color="grey darken-1"
@@ -240,7 +243,6 @@ export default {
 
       // If a file, is loaded, we set the volume accordingly
       if (!!category.howl) {
-        // category.howl.pause();
         category.howl.volume(category.volume);
       }
     },
@@ -294,6 +296,19 @@ export default {
     getCategoryByTitle(title) {
       return this.tabsCategory.find((tab) => tab.title === title);
     },
+  },
+
+  /** Whenever the page is exited : remove all audio tracks */
+  beforeRouteLeave(to, from, next) {
+    // Disable all audio tracks
+    this.tabsCategory.forEach((tab) => {
+      if (!!tab.howl) {
+        tab.howl.pause();
+      }
+    });
+
+    // Go to next page
+    return next();
   },
 
   head() {

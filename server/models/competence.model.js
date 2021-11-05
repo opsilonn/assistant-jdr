@@ -68,7 +68,7 @@ export default class Competence {
 
   /**
    * @param {Competence} competenceReceived
-   * @returns {Promise<Todo>}
+   * @returns {Promise<Competence>}
    */
   static async add(competenceReceived) {
     // Read the file
@@ -95,7 +95,7 @@ export default class Competence {
    *
    * @param {Number} id
    * @param {Competence} competenceReceived
-   * @returns {Promise<Todo>}
+   * @returns {Promise<Competence>}
    */
   static async update(id, competenceReceived) {
     // Read the file
@@ -105,22 +105,22 @@ export default class Competence {
     // We get the specific index
     const index = competences.findIndex((_) => _.id === id);
 
-    // If we found an index : update ; if not : throw Error
-    if (index >= 0) {
-      competenceReceived.id = id;
-      competence = new Competence(competenceReceived);
-      competences[index] = competence;
-      writeFile(competencesFile, JSON.stringify(competences, null, 2), "utf8");
-    } else {
+    // invalid index : throw Error
+    if (index <= -1) {
       throw new Error("Instance not found !");
     }
+
+    competenceReceived.id = id;
+    competence = new Competence(competenceReceived);
+    competences[index] = competence;
+    writeFile(competencesFile, JSON.stringify(competences, null, 2), "utf8");
 
     return competence;
   }
 
   /**
    * @param {Number} id
-   * @returns {Promise<Todo>}
+   * @returns {Promise<Competence>}
    */
   static async delete(id) {
     // Read the file

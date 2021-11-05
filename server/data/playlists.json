@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "1ère playlist",
+    "audios": [
+      {
+        "id": 1,
+        "name": "Formidable Oak",
+        "surname": "Tour de la Mélancolie",
+        "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Nouveau nom",
+    "audios": [
+      {
+        "id": 1,
+        "name": "Formidable Oak",
+        "surname": "Tour de la tristitude",
+        "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+      }
+    ]
+  }
+]
