@@ -7,7 +7,7 @@
     <div v-else>
       <!-- Tab selection -->
       <!-- TO DO : the tabs should stay displayed, and not be scrolled -->
-      <v-tabs v-model="selectedTab" grow icons-and-text>
+      <v-tabs v-model="selectedTabIndex" grow icons-and-text>
         <v-tab v-for="(tab, i) in tabs" :key="`tab_${i}`">
           <span class="shrink d-none d-sm-flex">{{ tab.title }}</span>
           <v-icon>{{ tab.icon }}</v-icon>
@@ -15,7 +15,7 @@
       </v-tabs>
 
       <!-- Tab view -->
-      <v-tabs-items v-model="selectedTab">
+      <v-tabs-items v-model="selectedTabIndex">
         <!-- Dynamically create tab view for audio categories -->
         <v-tab-item
           v-for="(tab, i) in tabsCategory"
@@ -30,9 +30,89 @@
           </v-list>
         </v-tab-item>
 
-        <!-- Manually create tab view for audio playlist -->
+        <!-- Manually create tab view for audio playlists -->
         <v-tab-item :transition="false">
-          <h1>Work in progress, please come later</h1>
+          <v-row>
+            <!-- left : playlists -->
+            <v-col cols="4">
+              <!-- Create new playlist -->
+              <center>
+                <v-btn
+                  class="ma-4 zoom-sm primary"
+                  rounded
+                  @click="openDialogNew()"
+                >
+                  <v-icon left> mdi-folder-plus </v-icon>
+                  Nouvelle Playlist
+                </v-btn>
+              </center>
+
+              <!-- then, we iterate through playlists -->
+              <v-list shaped two-line>
+                <v-list-item-group
+                  v-model="selectedPlaylistIndex"
+                  color="primary"
+                >
+                  <v-list-item
+                    v-for="(playlist, i) in playlists"
+                    :key="`playlist_${playlist.id}`"
+                  >
+                    <v-list-item-icon>
+                      <v-icon v-text="'mdi-music-note'" />
+                    </v-list-item-icon>
+
+                    <v-list-item-content>
+                      <v-list-item-title v-text="playlist.name" />
+                      <v-list-item-subtitle
+                        v-text="
+                          `piste${playlist.audios.length > 1 ? 's' : ''} : ${
+                            playlist.audios.length
+                          }`
+                        "
+                      />
+                    </v-list-item-content>
+
+                    <v-list-item-action>
+                      <v-icon
+                        color="grey lighten-1"
+                        v-text="'mdi-dots-vertical'"
+                        @click="openDialogEdit(playlist.id)"
+                      />
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list-item-group>
+              </v-list>
+            </v-col>
+
+            <!-- divider -->
+            <v-divider vertical />
+
+            <!-- right - current playlist -->
+            <v-col cols="8" v-if="selectedPlaylistIndex >= 0">
+              <!-- Add audios -->
+              <center>
+                <v-btn class="ma-4 zoom-sm primary" rounded>
+                  <v-icon left> mdi-folder-plus </v-icon>
+                  Ajouter musique
+                </v-btn>
+              </center>
+
+              <!-- No music warning -->
+              <div v-if="playlists[selectedPlaylistIndex].audios.length === 0">
+                <center class="font-italic pa-8">
+                  Cette playlist est vide :'(
+                </center>
+              </div>
+
+              <!-- playlist's audios -->
+              <div v-else>
+                <ListItemAudio
+                  :audioFolder="playlists[selectedPlaylistIndex]"
+                  @set-audio="setAudio"
+                />
+              </div>
+            </v-col>
+          </v-row>
         </v-tab-item>
       </v-tabs-items>
 
@@ -97,6 +177,16 @@
           </div>
         </v-card>
       </v-footer>
+
+      <!-- Dialog to create, update or delete a playlist -->
+      <DialogPlaylist
+        @close-dialog="closeDialog()"
+        :dialog="dialogPlaylist"
+        :playlistId="dialogPlaylistId"
+        @playlist-new="newPlaylist"
+        @playlist-edit="editPlaylist"
+        @playlist-delete="deletePlaylist"
+      />
     </div>
   </div>
 </template>
@@ -105,6 +195,7 @@
 // Imports
 import { Howl, Howler } from "howler";
 import { mapActions, mapState } from "vuex";
+import DialogPlaylist from "@/components/dialog-playlist";
 import ListItemAudio from "@/components/list-item-audio";
 import Loader from "@/components/loader";
 
@@ -112,9 +203,7 @@ export default {
   name: "PageAudio",
   transition: "slide-bottom",
 
-  components: { ListItemAudio, Loader },
-
-  props: {},
+  components: { DialogPlaylist, ListItemAudio, Loader },
 
   data: () => ({
     // Whether the page is loaded or not
@@ -152,28 +241,36 @@ export default {
     ],
     tabPlaylist: { title: "Playlist", icon: "mdi-playlist-music" },
     tabs: [],
-    selectedTab: null,
+    selectedTabIndex: null,
+    selectedPlaylistIndex: -1,
+
+    dialogPlaylist: false,
+    dialogPlaylistId: undefined,
   }),
 
   computed: {
     // Imports
     ...mapState("audio", ["audioFolder"]),
+    ...mapState("playlist", ["playlists"]),
 
     /** */
-    category_0_volume: function () {
+    category_0_volume() {
       return this.tabsCategory[0].volume;
     },
     /** */
-    category_1_volume: function () {
+    category_1_volume() {
       return this.tabsCategory[1].volume;
     },
     /** */
-    category_2_volume: function () {
+    category_2_volume() {
       return this.tabsCategory[2].volume;
     },
   },
 
   watch: {
+    selectedPlaylistIndex: function (val) {
+      console.log(this.selectedPlaylistIndex);
+    },
     /** */
     category_0_volume: function (val) {
       this.setVolume(this.tabsCategory[0].title);
@@ -192,6 +289,9 @@ export default {
     // We fetch the audio data
     await this.fetchAudioFolder();
 
+    // We fetch the playlists
+    await this.fetchAllPlaylists();
+
     // Set tabs
     this.tabs = this.tabsCategory.concat([this.tabPlaylist]);
 
@@ -202,11 +302,12 @@ export default {
   methods: {
     // Imports
     ...mapActions("audio", ["fetchAudioFolder"]),
+    ...mapActions("playlist", ["fetchAllPlaylists", "createPlaylist"]),
 
     /** */
     setAudio(audio) {
       // We get the category
-      const category = this.tabsCategory[this.selectedTab];
+      const category = this.tabsCategory[this.selectedTabIndex];
 
       // If an audio was already loaded : stop it
       if (!!category.howl) {
@@ -295,6 +396,39 @@ export default {
      */
     getCategoryByTitle(title) {
       return this.tabsCategory.find((tab) => tab.title === title);
+    },
+
+    closeDialog() {
+      this.dialogPlaylist = false;
+    },
+
+    /** */
+    openDialogNew() {
+      this.dialogPlaylistId = undefined;
+      this.dialogPlaylist = true;
+    },
+
+    /** */
+    openDialogEdit(id) {
+      this.dialogPlaylistId = id;
+      this.dialogPlaylist = true;
+    },
+
+    /** */
+    async newPlaylist(newPlaylist) {
+      const x = await this.createPlaylist(newPlaylist);
+      console.log(x);
+      this.dialogPlaylist = false;
+    },
+
+    /** */
+    editPlaylist(newPlaylist) {
+      console.log(newPlaylist.name);
+    },
+
+    /** */
+    deletePlaylist() {
+      console.log("DELETE");
     },
   },
 

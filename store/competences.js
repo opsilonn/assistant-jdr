@@ -18,7 +18,7 @@ const getters = {
 
 const mutations = {
   addCompetence(state, competence) {
-    const curr = state.competences.find((t) => t.id === competence.id);
+    const curr = state.competences.find((_) => _.id === competence.id);
     if (!curr) {
       state.competences.push(competence);
     } else {
@@ -32,14 +32,6 @@ const actions = {
   async fetchAllCompetences({ commit }) {
     const competences = await this.$axios.$get("/api/competences");
     competences.forEach((t) => commit("addCompetence", t));
-  },
-
-  async createCompetence({ commit }, { description }) {
-    const competence = await this.$axios.$post("/api/competence", {
-      description,
-      finished: false,
-    });
-    commit("addCompetence", competence);
   },
 };
 

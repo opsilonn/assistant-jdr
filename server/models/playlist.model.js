@@ -4,15 +4,14 @@ import { promisify } from "util";
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
-
-const playlistsFile = path.join(__dirname, "../data/playlists.json");
+const playlistsAudio = path.join(__dirname, "../data/playlists.json");
 
 export default class Playlist {
   /** @type {Number} */
   id;
   /** @type {String} */
   name;
-  /** @type {Playlist<[]>} */
+  /** @type {<[]>} */
   audios;
 
   /**
@@ -30,7 +29,7 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async get(id) {
-    // Read the file
+    // Read the audio
     const playlists = await this.getAll();
 
     // Find the correct instance
@@ -48,10 +47,10 @@ export default class Playlist {
    * @returns {Promise<Playlist[]>}
    */
   static async getAll() {
-    // Read the file
-    const playlists = await readFile(playlistsFile, "utf8");
+    // Read the audio
+    const playlists = await readFile(playlistsAudio, "utf8");
 
-    // Parse the file as JSON
+    // Parse the audio as JSON
     return JSON.parse(playlists);
   }
 
@@ -60,7 +59,7 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async add(playlistReceived) {
-    // Read the file
+    // Read the audio
     const playlists = await this.getAll();
 
     // Get and set the id
@@ -75,7 +74,7 @@ export default class Playlist {
 
     // Add new Playlist
     playlists.push(playlist);
-    writeFile(playlistsFile, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
   }
@@ -87,20 +86,20 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async update(id, playlistReceived) {
-    // Read the file
+    // Read the audio
     let playlists = await this.getAll();
 
     // We get the specific index
     const playlist = playlists.find((_) => _.id === id);
 
-    // If not foundx : throw Error
+    // If not found : throw Error
     if (!playlist) {
       throw new Error("Instance not found !");
     }
 
     // We only update the name
     playlist.name = playlistReceived.name;
-    writeFile(playlistsFile, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
   }
@@ -109,7 +108,7 @@ export default class Playlist {
    * @param {Number} id
    */
   static async delete(id) {
-    // Read the file
+    // Read the audio
     let playlists = await this.getAll();
 
     // get index of the instance to remove
@@ -123,8 +122,8 @@ export default class Playlist {
     // Remove found Playlist
     playlists.splice(index, 1);
 
-    // Re-write file
-    writeFile(playlistsFile, JSON.stringify(playlists, null, 2), "utf8");
+    // Re-write audio
+    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
   }
 
   /**
@@ -134,7 +133,7 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async addAudio(id, audio) {
-    // Read the file
+    // Read the audio
     let playlists = await this.getAll();
 
     // We get the row
@@ -159,7 +158,7 @@ export default class Playlist {
 
     // We add the audio
     playlist.audios.push(audio);
-    writeFile(playlistsFile, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
   }
@@ -172,7 +171,7 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async updateAudio(playlistId, audioId, audioReceived) {
-    // Read the file
+    // Read the audio
     let playlists = await this.getAll();
 
     // We get the row
@@ -193,7 +192,7 @@ export default class Playlist {
 
     // We only update the name
     audio.surname = audioReceived.surname;
-    writeFile(playlistsFile, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
   }
@@ -203,7 +202,7 @@ export default class Playlist {
    * @param {Number} audioId
    */
   static async deleteAudio(playlistId, audioId) {
-    // Read the file
+    // Read the audio
     let playlists = await this.getAll();
 
     // get the row
@@ -225,7 +224,7 @@ export default class Playlist {
     // Remove from Playlist
     playlist.audios.splice(indexAudio, 1);
 
-    // Re-write file
-    writeFile(playlistsFile, JSON.stringify(playlists, null, 2), "utf8");
+    // Re-write audio
+    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
   }
 }

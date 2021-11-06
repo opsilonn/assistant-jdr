@@ -1,7 +1,5 @@
 <template>
-  <v-container>
-    Template
-  </v-container>
+  <v-container> Work in progress (: </v-container>
 </template>
 
 <script>
@@ -29,6 +27,6 @@ export default {
 
   head() {
     return { title: "D&D" };
-  }
+  },
 };
 </script>

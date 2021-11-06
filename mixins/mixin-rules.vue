@@ -9,27 +9,24 @@ export default {
 
     // Rules
     rules: {
-      required: value => !!value || "Required",
-      maxSmall: value =>
+      required: (value) => !!value || "Required",
+      max50: (value) =>
         (value !== null && value !== undefined && value.length <= 50) ||
         "Max 50 characters",
-      maxBig: value =>
-        (value !== null && value !== undefined && value.length <= 65535) ||
-        "Max 65535 characters",
-      ascii: value =>
+      ascii: (value) =>
         (value !== null &&
           value !== undefined &&
           value
             .split("")
-            .every(v => v.charCodeAt(0) >= 32 && v.charCodeAt(0) <= 255)) ||
+            .every((v) => v.charCodeAt(0) >= 32 && v.charCodeAt(0) <= 255)) ||
         "Contains invalid character",
       nameMatch(name) {
-        return value => value === name || "The names do not match !";
+        return (value) => value === name || "The names do not match !";
       },
       passwordMatch(name) {
-        return value => value === name || "The passwords do not match !";
-      }
-    }
-  })
+        return (value) => value === name || "The passwords do not match !";
+      },
+    },
+  }),
 };
 </script>
