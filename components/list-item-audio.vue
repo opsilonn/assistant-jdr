@@ -9,7 +9,14 @@
         </template>
 
         <!-- recursive : call self -->
-        <ListItemAudio :audioFolder="folder" @set-audio="setAudio" />
+        <ListItemAudio
+          :audioFolder="folder"
+          @set-audio="setAudio"
+          @edit-playlist-audio="forwardEditAudioFromPlaylist"
+          :enableAudioMgmt="enableAudioMgmt"
+          :enableEdit="enableEdit"
+          :enableAddition="enableAddition"
+        />
       </v-list-group>
     </v-list-item>
 
@@ -20,6 +27,7 @@
       two-line
       link
       @click="setAudio(file)"
+      @keyup.enter.prevent
     >
       <!-- icon -->
       <v-list-item-icon>
@@ -27,20 +35,65 @@
       </v-list-item-icon>
 
       <!-- Text -->
-      <v-list-item-content>
-        <v-list-item-title v-text="file.surname ? file.surname : file.name" />
-        <v-list-item-subtitle v-if="file.surname" v-text="file.name" />
+      <v-list-item-content @keyup.enter.prevent>
+        <!-- If editing -->
+        <v-text-field
+          v-if="!!file.isEditing"
+          v-model="file.surnameEdit"
+          :rules="[rules.max50, rules.ascii]"
+          :label="file.name"
+          counter
+          @click.stop
+          @keyup.enter.stop="editAudioFromPlaylist(file)"
+        >
+          <template v-slot:append>
+            <v-fade-transition leave-absolute>
+              <v-icon
+                v-text="'mdi-check'"
+                @click.stop="editAudioFromPlaylist(file)"
+              />
+            </v-fade-transition>
+          </template>
+        </v-text-field>
+
+        <!-- Normal display -->
+        <div v-else>
+          <v-list-item-title v-text="file.surname ? file.surname : file.name" />
+          <v-list-item-subtitle v-if="file.surname" v-text="file.name" />
+        </div>
       </v-list-item-content>
 
       <!-- actions -->
       <v-list-item-action class="d-flex flex-row ma-4">
-        <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-pencil'" />
+        <!-- action : Edit -->
         <v-icon
+          v-if="enableEdit && !file.isEditing"
+          class="zoom"
+          color="grey lighten-1"
+          v-text="'mdi-pencil'"
+          @click.stop="beginEdit(file)"
+        />
+        <v-icon
+          v-if="enableEdit && file.isEditing"
+          class="zoom"
+          color="grey lighten-1"
+          v-text="'mdi-cancel'"
+          @click.stop="cancelEdit(file)"
+        />
+        <!-- action : Add -->
+        <v-icon
+          v-if="enableAddition"
           class="zoom"
           color="grey lighten-1"
           v-text="'mdi-plus-circle'"
         />
-        <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-delete'" />
+        <!-- action : Remove -->
+        <v-icon
+          v-if="enableAddition"
+          class="zoom"
+          color="grey lighten-1"
+          v-text="'mdi-delete'"
+        />
       </v-list-item-action>
     </v-list-item>
   </div>
@@ -49,16 +102,34 @@
 <script>
 // Imports
 import ListItemAudio from "@/components/list-item-audio";
+import MixinRules from "@/mixins/mixin-rules";
 
 export default {
   name: "ListItemAudio",
 
   components: { ListItemAudio },
 
+  mixins: [MixinRules],
+
   props: {
     audioFolder: {
       type: [],
       required: false,
+    },
+    enableAudioMgmt: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    enableEdit: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    enableAddition: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
 
@@ -72,9 +143,15 @@ export default {
   },
 
   methods: {
-    /** */
+    /**
+     * Forwards the event of a file being selected
+     * @param {Object} file Audio file to be played
+     */
     setAudio(file) {
-      this.$emit("set-audio", file);
+      // Send event only if allowed to play audio
+      if (this.enableAudioMgmt && !file.isEditing) {
+        this.$emit("set-audio", file);
+      }
     },
 
     /** */
@@ -88,8 +165,29 @@ export default {
     },
 
     /** */
+    beginEdit(file) {
+      this.$set(file, "isEditing", true);
+      this.$set(file, "surnameEdit", file.surname);
+    },
+
+    /** */
+    cancelEdit(file) {
+      this.$set(file, "isEditing", false);
+    },
+
+    /** */
+    forwardEditAudioFromPlaylist(file) {
+      this.$emit("edit-playlist-audio", file);
+    },
+
+    /** */
     editAudioFromPlaylist(file) {
-      this.$emit("edit-audio-from-playlist", file);
+      // We first edit the object
+      this.$set(file, "isEditing", false);
+      this.$set(file, "surname", file.surnameEdit);
+
+      // We then send the event
+      this.$emit("edit-playlist-audio", file);
     },
   },
 };

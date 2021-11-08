@@ -45,6 +45,20 @@ const actions = {
     });
     commit("addPlaylist", playlist);
   },
+
+  /** */
+  async updatePlaylistAudio(
+    { commit },
+    { idPlaylist, audio = { id, name, surname } }
+  ) {
+    const url = `/api/playlist/${idPlaylist}/audio/${audio.id}`;
+    const playlist = await this.$axios.$put(url, {
+      id: audio.id,
+      name: audio.name,
+      surname: audio.surname,
+    });
+    commit("addPlaylist", playlist);
+  },
 };
 
 export default {

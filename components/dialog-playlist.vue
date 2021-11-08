@@ -14,7 +14,7 @@
           <!-- Content -->
           Veuillez entrer le nom de la playlist
 
-          <!-- Universe's name (for verification) -->
+          <!-- Playlist's name (for verification) -->
           <v-form ref="form" v-model="form">
             <v-container>
               <v-text-field

@@ -373,8 +373,6 @@ export default {
       // On réinitialise les compétences
       this.compétences = [];
 
-      console.log(this.getCompetencesSocial());
-
       //On récupère l'index d'orientation choisi
       const index = this.itemsOrientation.indexOf(this.orientation);
 

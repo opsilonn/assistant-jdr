@@ -23,9 +23,10 @@
           :transition="false"
         >
           <v-list v-if="isPageLoaded">
-            <ListItemAudio
+            <ListItemAudioManager
               :audioFolder="getAudioFolderByTitle(tab.title)"
               @set-audio="setAudio"
+              :enableAudioMgmt="true"
             />
           </v-list>
         </v-tab-item>
@@ -106,9 +107,11 @@
 
               <!-- playlist's audios -->
               <div v-else>
-                <ListItemAudio
+                <ListItemAudioManager
                   :audioFolder="playlists[selectedPlaylistIndex]"
                   @set-audio="setAudio"
+                  :enableAudioMgmt="true"
+                  :enableEdit="true"
                 />
               </div>
             </v-col>
@@ -197,13 +200,14 @@ import { Howl, Howler } from "howler";
 import { mapActions, mapState } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
 import ListItemAudio from "@/components/list-item-audio";
+import ListItemAudioManager from "@/components/list-item-audio-manager";
 import Loader from "@/components/loader";
 
 export default {
   name: "PageAudio",
   transition: "slide-bottom",
 
-  components: { DialogPlaylist, ListItemAudio, Loader },
+  components: { DialogPlaylist, ListItemAudio, ListItemAudioManager, Loader },
 
   data: () => ({
     // Whether the page is loaded or not
@@ -268,9 +272,6 @@ export default {
   },
 
   watch: {
-    selectedPlaylistIndex: function (val) {
-      console.log(this.selectedPlaylistIndex);
-    },
     /** */
     category_0_volume: function (val) {
       this.setVolume(this.tabsCategory[0].title);
@@ -306,8 +307,19 @@ export default {
 
     /** */
     setAudio(audio) {
+      // We get the category's index
+      const index = this.tabsCategory.findIndex(
+        (tab) => audio.path.split("/")[2] === tab.title
+      );
+
+      // If no index was found : ERROR
+      if (index < 0) {
+        alert("Music not found !");
+        return;
+      }
+
       // We get the category
-      const category = this.tabsCategory[this.selectedTabIndex];
+      const category = this.tabsCategory[index];
 
       // If an audio was already loaded : stop it
       if (!!category.howl) {
@@ -417,19 +429,14 @@ export default {
     /** */
     async newPlaylist(newPlaylist) {
       const x = await this.createPlaylist(newPlaylist);
-      console.log(x);
       this.dialogPlaylist = false;
     },
 
     /** */
-    editPlaylist(newPlaylist) {
-      console.log(newPlaylist.name);
-    },
+    editPlaylist(newPlaylist) {},
 
     /** */
-    deletePlaylist() {
-      console.log("DELETE");
-    },
+    deletePlaylist() {},
   },
 
   /** Whenever the page is exited : remove all audio tracks */
