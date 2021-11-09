@@ -37,24 +37,29 @@
       <!-- Text -->
       <v-list-item-content @keyup.enter.prevent>
         <!-- If editing -->
-        <v-text-field
+        <v-form
           v-if="!!file.isEditing"
-          v-model="file.surnameEdit"
-          :rules="[rules.max50, rules.ascii]"
-          :label="file.name"
-          counter
-          @click.stop
-          @keyup.enter.stop="editAudioFromPlaylist(file)"
+          :ref="`form_playlist_audio_${file.id}`"
+          v-model="file.form"
         >
-          <template v-slot:append>
-            <v-fade-transition leave-absolute>
-              <v-icon
-                v-text="'mdi-check'"
-                @click.stop="editAudioFromPlaylist(file)"
-              />
-            </v-fade-transition>
-          </template>
-        </v-text-field>
+          <v-text-field
+            v-model="file.surnameEdit"
+            :rules="[rules.max50, rules.ascii]"
+            :label="file.name"
+            counter
+            @click.stop
+            @keyup.enter.stop="editAudioFromPlaylist(file)"
+          >
+            <template v-slot:append>
+              <v-fade-transition leave-absolute>
+                <v-icon
+                  v-text="'mdi-check'"
+                  @click.stop="editAudioFromPlaylist(file)"
+                />
+              </v-fade-transition>
+            </template>
+          </v-text-field>
+        </v-form>
 
         <!-- Normal display -->
         <div v-else>
@@ -167,6 +172,7 @@ export default {
     /** */
     beginEdit(file) {
       this.$set(file, "isEditing", true);
+      this.$set(file, "form", false);
       this.$set(file, "surnameEdit", file.surname);
     },
 
@@ -182,12 +188,16 @@ export default {
 
     /** */
     editAudioFromPlaylist(file) {
-      // We first edit the object
-      this.$set(file, "isEditing", false);
-      this.$set(file, "surname", file.surnameEdit);
+      // If the form is valid
+      const formId = `form_playlist_audio_${file.id}`;
+      if (this.$refs[formId][0].validate()) {
+        // We first edit the object
+        this.$set(file, "isEditing", false);
+        this.$set(file, "surname", file.surnameEdit);
 
-      // We then send the event
-      this.$emit("edit-playlist-audio", file);
+        // We then send the event
+        this.$emit("edit-playlist-audio", file);
+      }
     },
   },
 };

@@ -11,13 +11,13 @@
       {
         "id": 1,
         "name": "Formidable Oak",
-        "surname": "Tour un peu triste",
+        "surname": "Tour un peu tristoune",
         "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
       },
       {
         "id": 2,
         "name": "Jazz - Covert Affair",
-        "surname": "",
+        "surname": "jazz2",
         "path": "/audio/Musique/jazz/Jazz - Covert Affair.mp3"
       }
     ]
