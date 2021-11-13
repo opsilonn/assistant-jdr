@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <!-- Dialog to delete -->
+    <!-- Dialog -->
     <v-dialog v-model="dialog" max-width="500px" @click:outside="closeDialog">
       <v-card>
         <!-- Title -->
@@ -122,8 +122,6 @@ export default {
         if (this.isNewPlaylist) {
           this.$emit("playlist-new", playlist);
         }
-        // We launch the method given as a prop
-        // this.validate();
       }
     },
   },

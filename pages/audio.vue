@@ -92,7 +92,11 @@
             <v-col cols="8" v-if="selectedPlaylistIndex >= 0">
               <!-- Add audios -->
               <center>
-                <v-btn class="ma-4 zoom-sm primary" rounded>
+                <v-btn
+                  class="ma-4 zoom-sm primary"
+                  rounded
+                  @click="dialogPlaylistAudio = true"
+                >
                   <v-icon left> mdi-folder-plus </v-icon>
                   Ajouter musique
                 </v-btn>
@@ -183,12 +187,19 @@
 
       <!-- Dialog to create, update or delete a playlist -->
       <DialogPlaylist
-        @close-dialog="closeDialog()"
+        @close-dialog="dialogPlaylist = false"
         :dialog="dialogPlaylist"
         :playlistId="dialogPlaylistId"
         @playlist-new="newPlaylist"
         @playlist-edit="editPlaylist"
         @playlist-delete="deletePlaylist"
+      />
+
+      <!-- Dialog to add or remove audios form a playlist -->
+      <DialogPlaylistAudio
+        @close-dialog="dialogPlaylistAudio = false"
+        :dialog="dialogPlaylistAudio"
+        :playlistId="selectedPlaylistIndex"
       />
     </div>
   </div>
@@ -199,6 +210,7 @@
 import { Howl, Howler } from "howler";
 import { mapActions, mapState } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
+import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
 import ListItemAudio from "@/components/list-item-audio";
 import ListItemAudioManager from "@/components/list-item-audio-manager";
 import Loader from "@/components/loader";
@@ -207,7 +219,13 @@ export default {
   name: "PageAudio",
   transition: "slide-bottom",
 
-  components: { DialogPlaylist, ListItemAudio, ListItemAudioManager, Loader },
+  components: {
+    DialogPlaylist,
+    DialogPlaylistAudio,
+    ListItemAudio,
+    ListItemAudioManager,
+    Loader,
+  },
 
   data: () => ({
     // Whether the page is loaded or not
@@ -250,6 +268,7 @@ export default {
 
     dialogPlaylist: false,
     dialogPlaylistId: undefined,
+    dialogPlaylistAudio: false,
   }),
 
   computed: {

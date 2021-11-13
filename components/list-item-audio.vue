@@ -190,7 +190,8 @@ export default {
     editAudioFromPlaylist(file) {
       // If the form is valid
       const formId = `form_playlist_audio_${file.id}`;
-      if (this.$refs[formId][0].validate()) {
+      const form = this.$refs[formId][0];
+      if (form.validate()) {
         // We first edit the object
         this.$set(file, "isEditing", false);
         this.$set(file, "surname", file.surnameEdit);
