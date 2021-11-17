@@ -60,7 +60,7 @@
 
 <script>
 // Imports
-import { mapGetters } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import MixinRules from "@/mixins/mixin-rules";
 
 export default {
@@ -81,6 +81,7 @@ export default {
 
   data: () => ({
     form: false,
+    playlist: {},
     playlistName: "",
   }),
 
@@ -89,8 +90,8 @@ export default {
     dialog() {
       if (this.dialog) {
         // get the Playlist
-        const playlist = this.getPlaylist(this.playlistId);
-        this.playlistName = !!playlist ? playlist.name : "";
+        this.playlist = this.getPlaylist(this.playlistId);
+        this.playlistName = !!this.playlist ? this.playlist.name : "";
       }
     },
   },
@@ -105,22 +106,49 @@ export default {
   },
 
   methods: {
+    // Imports
+    ...mapActions("playlist", [
+      "createPlaylist",
+      "updatePlaylist",
+      "deletePlaylist",
+    ]),
+
     /** Emits the event to close the dialog */
     closeDialog() {
       this.$emit("close-dialog");
     },
 
     /** */
-    remove() {},
+    async remove() {
+      console.log("delete");
+      await this.deletePlaylist({ id: this.playlistId }).then((response) => {
+        console.log(response);
+        if (true) {
+          this.$emit("close-dialog");
+        }
+      });
+    },
 
     /** */
-    action() {
+    async action() {
       // If the form is valid
       if (this.$refs.form.validate()) {
-        const playlist = { name: this.playlistName };
-
         if (this.isNewPlaylist) {
-          this.$emit("playlist-new", playlist);
+          const newPlaylist = { name: this.playlistName };
+          const isSuccess = await this.createPlaylist(newPlaylist);
+          if (!!isSuccess) {
+            this.$emit("close-dialog");
+          }
+        } else {
+          const editedPlaylist = {
+            id: this.playlist.id,
+            name: this.playlistName,
+            audios: this.playlist.audios,
+          };
+          const isSuccess = await this.updatePlaylist(editedPlaylist);
+          if (!!isSuccess) {
+            this.$emit("close-dialog");
+          }
         }
       }
     },

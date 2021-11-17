@@ -47,9 +47,11 @@ export default {
   }),
 
   watch: {
+    /*
     "nested.audioFolder": function (newVal, oldVal) {
       this.audioFolderClone = JSON.parse(JSON.stringify(this.audioFolder));
     },
+    */
   },
 
   mounted() {

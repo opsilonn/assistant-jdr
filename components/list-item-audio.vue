@@ -106,6 +106,7 @@
 
 <script>
 // Imports
+import { mapActions, mapState, mapMutations } from "vuex";
 import ListItemAudio from "@/components/list-item-audio";
 import MixinRules from "@/mixins/mixin-rules";
 
@@ -148,16 +149,8 @@ export default {
   },
 
   methods: {
-    /**
-     * Forwards the event of a file being selected
-     * @param {Object} file Audio file to be played
-     */
-    setAudio(file) {
-      // Send event only if allowed to play audio
-      if (this.enableAudioMgmt && !file.isEditing) {
-        this.$emit("set-audio", file);
-      }
-    },
+    // Imports
+    ...mapMutations("audioPlayer", ["setAudio"]),
 
     /** */
     removeAudioFromPlaylist(file) {

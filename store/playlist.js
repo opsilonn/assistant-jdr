@@ -8,6 +8,11 @@ const getters = {
 };
 
 const mutations = {
+  /**
+   *
+   * @param {*} state
+   * @param {*} playlist
+   */
   addPlaylist(state, playlist) {
     const curr = state.playlists.find((_) => _.id === playlist.id);
     if (!curr) {
@@ -15,6 +20,18 @@ const mutations = {
     } else {
       curr.description = playlist.description;
       curr.finished = playlist.finished;
+    }
+  },
+
+  /**
+   *
+   * @param {*} state
+   * @param {*} id
+   */
+  deletePlaylist(state, id) {
+    const index = state.playlists.findIndex((_) => _.id === id);
+    if (index >= 0) {
+      state.playlists.splice(index, 1);
     }
   },
 };
@@ -38,12 +55,19 @@ const actions = {
 
   /** */
   async updatePlaylist({ commit }, { id, name, audios }) {
-    const playlist = await this.$axios.$put("/api/playlist", id, {
+    const playlist = await this.$axios.$put(`/api/playlist/${id}`, {
       id: id,
       name: name,
       audios: audios,
     });
     commit("addPlaylist", playlist);
+  },
+
+  /** */
+  async deletePlaylist({ commit }, { id }) {
+    const result = await this.$axios.$delete(`/api/playlist/${id}`);
+    commit("deletePlaylist", id);
+    return result;
   },
 
   /** */

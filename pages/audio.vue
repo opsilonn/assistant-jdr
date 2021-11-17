@@ -18,14 +18,13 @@
       <v-tabs-items v-model="selectedTabIndex">
         <!-- Dynamically create tab view for audio categories -->
         <v-tab-item
-          v-for="(tab, i) in tabsCategory"
+          v-for="(tab, i) in audioCategories"
           :key="`tab_item_category${i}`"
           :transition="false"
         >
           <v-list v-if="isPageLoaded">
             <ListItemAudioManager
               :audioFolder="getAudioFolderByTitle(tab.title)"
-              @set-audio="setAudio"
               :enableAudioMgmt="true"
             />
           </v-list>
@@ -113,7 +112,6 @@
               <div v-else>
                 <ListItemAudioManager
                   :audioFolder="playlists[selectedPlaylistIndex]"
-                  @set-audio="setAudio"
                   :enableAudioMgmt="true"
                   :enableEdit="true"
                 />
@@ -127,63 +125,7 @@
       <br v-for="n in 10" :key="n" />
 
       <!-- Dashboard (fixed to the bottom) -->
-      <v-footer fixed padless>
-        <v-card flat tile width="100%" class="text-center grey darken-3">
-          <div v-for="(tab, i) in tabsCategory" :key="i">
-            <v-row align="center">
-              <!-- col 1 - category -->
-              <v-col cols="3">
-                <h3 class="font-weight-bold text-right" v-text="tab.title" />
-              </v-col>
-
-              <!-- col 2 - name -->
-              <v-col cols="6">
-                <v-card-text>
-                  <div>
-                    {{ tab.audio.surname || tab.audio.name || "..." }}
-                  </div>
-                  <div v-if="tab.audio.surname">
-                    {{ tab.audio.name }}
-                  </div>
-                </v-card-text>
-              </v-col>
-
-              <!-- col 3 - buttons -->
-              <v-col cols="3">
-                <v-row align="center">
-                  <!-- slider sound -->
-                  <v-col cols="6">
-                    <!-- TO DO : center vertically the slider -->
-                    <v-slider
-                      v-model="tab.volume"
-                      track-color="grey darken-1"
-                      step="0.05"
-                      min="0"
-                      max="1"
-                      thumb-label
-                      hide-detail
-                    />
-                  </v-col>
-                  <v-col cols="6">
-                    <!-- button play / pause -->
-                    <v-btn icon @click="setPlayOrPause(tab.title)">
-                      <v-icon v-text="tab.play ? 'mdi-pause' : 'mdi-play'" />
-                    </v-btn>
-
-                    <!-- button loop -->
-                    <v-btn icon @click="setLoop(tab.title)">
-                      <v-icon v-text="'mdi-autorenew'" :disabled="!tab.loop" />
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-
-            <!-- Divider, except last row -->
-            <v-divider v-if="i !== tabsCategory.length - 1" />
-          </div>
-        </v-card>
-      </v-footer>
+      <FooterAudio />
 
       <!-- Dialog to create, update or delete a playlist -->
       <DialogPlaylist
@@ -208,12 +150,13 @@
 <script>
 // Imports
 import { Howl, Howler } from "howler";
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapMutations } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
 import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
 import ListItemAudio from "@/components/list-item-audio";
 import ListItemAudioManager from "@/components/list-item-audio-manager";
 import Loader from "@/components/loader";
+import FooterAudio from "@/components/footer-audio";
 
 export default {
   name: "PageAudio",
@@ -222,6 +165,7 @@ export default {
   components: {
     DialogPlaylist,
     DialogPlaylistAudio,
+    FooterAudio,
     ListItemAudio,
     ListItemAudioManager,
     Loader,
@@ -232,35 +176,6 @@ export default {
     isPageLoaded: false,
 
     // All tabs related
-    tabsCategory: [
-      {
-        title: "Ambiance",
-        icon: "mdi-city-variant-outline",
-        audio: {},
-        howl: undefined,
-        play: false,
-        loop: false,
-        volume: 1,
-      },
-      {
-        title: "Musique",
-        icon: "mdi-music-note",
-        audio: {},
-        howl: undefined,
-        play: false,
-        loop: false,
-        volume: 1,
-      },
-      {
-        title: "SFX",
-        icon: "mdi-ear-hearing",
-        audio: {},
-        howl: undefined,
-        play: false,
-        loop: false,
-        volume: 1,
-      },
-    ],
     tabPlaylist: { title: "Playlist", icon: "mdi-playlist-music" },
     tabs: [],
     selectedTabIndex: null,
@@ -275,33 +190,20 @@ export default {
     // Imports
     ...mapState("audio", ["audioFolder"]),
     ...mapState("playlist", ["playlists"]),
+    ...mapState("audioPlayer", ["audioCategories"]),
 
-    /** */
-    category_0_volume() {
-      return this.tabsCategory[0].volume;
-    },
-    /** */
-    category_1_volume() {
-      return this.tabsCategory[1].volume;
-    },
-    /** */
-    category_2_volume() {
-      return this.tabsCategory[2].volume;
+    playlistIds() {
+      return this.playlists.map((_) => _.id);
     },
   },
 
   watch: {
-    /** */
-    category_0_volume: function (val) {
-      this.setVolume(this.tabsCategory[0].title);
-    },
-    /** */
-    category_1_volume: function (val) {
-      this.setVolume(this.tabsCategory[1].title);
-    },
-    /** */
-    category_2_volume: function (val) {
-      this.setVolume(this.tabsCategory[2].title);
+    playlistIds(newValue, oldValue) {
+      if (oldValue.length < newValue.length) {
+        this.selectedPlaylistIndex = this.playlists.length - 1;
+      } else if (oldValue.length > newValue.length) {
+        this.selectedPlaylistIndex = -1;
+      }
     },
   },
 
@@ -313,7 +215,8 @@ export default {
     await this.fetchAllPlaylists();
 
     // Set tabs
-    this.tabs = this.tabsCategory.concat([this.tabPlaylist]);
+    const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
+    this.tabs = tabsCategory.concat([this.tabPlaylist]);
 
     // All is complete, we consider the page loaded
     this.isPageLoaded = true;
@@ -323,95 +226,7 @@ export default {
     // Imports
     ...mapActions("audio", ["fetchAudioFolder"]),
     ...mapActions("playlist", ["fetchAllPlaylists", "createPlaylist"]),
-
-    /** */
-    setAudio(audio) {
-      // We get the category's index
-      const index = this.tabsCategory.findIndex(
-        (tab) => audio.path.split("/")[2] === tab.title
-      );
-
-      // If no index was found : ERROR
-      if (index < 0) {
-        alert("Music not found !");
-        return;
-      }
-
-      // We get the category
-      const category = this.tabsCategory[index];
-
-      // If an audio was already loaded : stop it
-      if (!!category.howl) {
-        category.howl.pause();
-      }
-
-      // We set some values
-      category.audio = audio;
-      category.play = true;
-      category.howl = new Howl({
-        src: [audio.path],
-        loop: category.loop,
-        volume: category.volume,
-      });
-
-      // We play the audio file
-      category.howl.play();
-
-      // When it ends, and if loop is disabled : disable the play flag
-      category.howl.on("end", () => {
-        if (!category.loop) {
-          category.play = false;
-        }
-      });
-    },
-
-    /**
-     * Sets the volume of a specific track
-     * @param {String} title Title of the track to update
-     */
-    setVolume(title) {
-      // We get the category
-      const category = this.getCategoryByTitle(title);
-
-      // If a file, is loaded, we set the volume accordingly
-      if (!!category.howl) {
-        category.howl.volume(category.volume);
-      }
-    },
-
-    /**
-     * Either plays or pauses a specific track
-     * @param {String} title Title of the track to update
-     */
-    setPlayOrPause(title) {
-      // We get the category
-      const category = this.getCategoryByTitle(title);
-
-      // If a file, is loaded, we play or pause it accordingly
-      if (!!category.howl) {
-        category.play = !category.play;
-        if (category.play) {
-          category.howl.play();
-        } else {
-          category.howl.pause();
-        }
-      }
-    },
-
-    /**
-     * Either enables or disables the loop a specific track
-     * @param {String} title Title of the track to update
-     */
-    setLoop(title) {
-      // We get the category
-      const category = this.getCategoryByTitle(title);
-
-      // If a file, is loaded, we (dis)enable the loop it accordingly
-      if (!!category.howl) {
-        category.loop = !category.loop;
-        category.howl.loop(category.loop);
-      }
-    },
+    ...mapMutations("audioPlayer", ["stopAllAudioTracks"]),
 
     /**
      * Gets a specific folder from the audioFolder, given its title
@@ -419,14 +234,6 @@ export default {
      */
     getAudioFolderByTitle(name) {
       return this.audioFolder.folders.find((folder) => folder.name === name);
-    },
-
-    /**
-     * Gets a specific tab from the list, given its title
-     * @param {String} title Title of the category to find
-     */
-    getCategoryByTitle(title) {
-      return this.tabsCategory.find((tab) => tab.title === title);
     },
 
     closeDialog() {
@@ -461,11 +268,7 @@ export default {
   /** Whenever the page is exited : remove all audio tracks */
   beforeRouteLeave(to, from, next) {
     // Disable all audio tracks
-    this.tabsCategory.forEach((tab) => {
-      if (!!tab.howl) {
-        tab.howl.pause();
-      }
-    });
+    this.stopAllAudioTracks();
 
     // Go to next page
     return next();

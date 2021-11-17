@@ -11,10 +11,6 @@ export default {
 
   components: {},
 
-  props: {},
-
-  async asyncData({ store, params }) {},
-
   data: () => ({}),
 
   computed: {},

@@ -11,7 +11,7 @@ export default class Playlist {
   id;
   /** @type {String} */
   name;
-  /** @type {<[]>} */
+  /** @type {} */
   audios;
 
   /**
