@@ -73,6 +73,7 @@ export default {
     // Imports
     ...mapState("audioPlayer", ["audioCategories"]),
 
+    /** */
     audioCategoriesVolumes() {
       return this.audioCategories.map((_) => ({
         title: _.title,
@@ -82,6 +83,7 @@ export default {
   },
 
   watch: {
+    /** */
     audioCategoriesVolumes(newValue, oldValue) {
       for (let i = 0; i < oldValue.length; i++) {
         if (oldValue[i].volume !== newValue[i].volume) {

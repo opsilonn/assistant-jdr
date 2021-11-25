@@ -15,7 +15,7 @@
           Veuillez entrer le nom de la playlist
 
           <!-- Playlist's name (for verification) -->
-          <v-form ref="form" v-model="form">
+          <v-form ref="form" v-model="form" @submit.prevent>
             <v-container>
               <v-text-field
                 label="Nom de la Playlist"
@@ -69,7 +69,7 @@ export default {
   mixins: [MixinRules],
 
   props: {
-    playlistId: {
+    idPlaylist: {
       type: Number,
       required: false,
     },
@@ -90,18 +90,19 @@ export default {
     dialog() {
       if (this.dialog) {
         // get the Playlist
-        this.playlist = this.getPlaylist(this.playlistId);
+        this.playlist = this.getPlaylistById(this.idPlaylist);
         this.playlistName = !!this.playlist ? this.playlist.name : "";
       }
     },
   },
 
   computed: {
-    ...mapGetters("playlist", ["getPlaylist"]),
+    // Imports
+    ...mapGetters("playlist", ["getPlaylistById"]),
 
     /** */
     isNewPlaylist() {
-      return !this.playlistId || this.playlistId < 0;
+      return !this.idPlaylist || this.idPlaylist < 0;
     },
   },
 
@@ -120,12 +121,9 @@ export default {
 
     /** */
     async remove() {
-      console.log("delete");
-      await this.deletePlaylist({ id: this.playlistId }).then((response) => {
-        console.log(response);
-        if (true) {
-          this.$emit("close-dialog");
-        }
+      await this.deletePlaylist({ id: this.idPlaylist }).then((response) => {
+        this.$emit("close-dialog");
+        this.$refs.form.reset();
       });
     },
 
@@ -134,22 +132,33 @@ export default {
       // If the form is valid
       if (this.$refs.form.validate()) {
         if (this.isNewPlaylist) {
-          const newPlaylist = { name: this.playlistName };
-          const isSuccess = await this.createPlaylist(newPlaylist);
-          if (!!isSuccess) {
-            this.$emit("close-dialog");
-          }
+          this.add();
         } else {
-          const editedPlaylist = {
-            id: this.playlist.id,
-            name: this.playlistName,
-            audios: this.playlist.audios,
-          };
-          const isSuccess = await this.updatePlaylist(editedPlaylist);
-          if (!!isSuccess) {
-            this.$emit("close-dialog");
-          }
+          this.update();
         }
+      }
+    },
+
+    /** */
+    async add() {
+      const newPlaylist = { name: this.playlistName };
+      const res = await this.createPlaylist(newPlaylist);
+      if (!!res) {
+        this.$emit("close-dialog");
+        this.$refs.form.reset();
+      }
+    },
+
+    /** */
+    async update() {
+      const editedPlaylist = {
+        id: this.playlist.id,
+        name: this.playlistName,
+      };
+      const res = await this.updatePlaylist(editedPlaylist);
+      if (!!res) {
+        this.$emit("close-dialog");
+        this.$refs.form.reset();
       }
     },
   },

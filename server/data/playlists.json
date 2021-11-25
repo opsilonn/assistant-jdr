@@ -1,25 +1,91 @@
 [
   {
     "id": 1,
-    "name": "1ère playliste",
-    "audios": []
+    "name": "1ère playlist",
+    "total": 3,
+    "rootFolder": {
+      "files": [
+        {
+          "id": 1,
+          "name": "Blighted Farm",
+          "path": "/audio/Ambiance/campagne/Blighted Farm.mp3",
+          "surname": "blighted"
+        },
+        {
+          "id": 2,
+          "name": "feu de camp",
+          "path": "/audio/Ambiance/nature/feu de camp.mp3"
+        },
+        {
+          "id": 3,
+          "name": "Forêt",
+          "path": "/audio/Ambiance/nature/Forêt.mp3"
+        }
+      ],
+      "folders": []
+    }
   },
   {
     "id": 3,
-    "name": "Nouveau nom",
-    "audios": [
-      {
-        "id": 1,
-        "name": "Formidable Oak",
-        "surname": "Tour un peu tristoune",
-        "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
-      },
-      {
-        "id": 2,
-        "name": "Jazz - Covert Affair",
-        "surname": "jazz2",
-        "path": "/audio/Musique/jazz/Jazz - Covert Affair.mp3"
-      }
-    ]
+    "name": "Exemple complet",
+    "total": 5,
+    "rootFolder": {
+      "folders": [
+        {
+          "files": [
+            {
+              "id": 1,
+              "name": "Formidable Oak",
+              "surname": "A - Chêne",
+              "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+            },
+            {
+              "id": 2,
+              "name": "Formidable Oak",
+              "surname": "B - Bouleau",
+              "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+            }
+          ],
+          "folders": [
+            {
+              "files": [
+                {
+                  "id": 3,
+                  "name": "Formidable Oak",
+                  "surname": "TACHANKA !!!",
+                  "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+                },
+                {
+                  "id": 4,
+                  "name": "Pikmin 3 - Formidable Oak",
+                  "surname": "TACHANKA !!!",
+                  "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak 3.mp3"
+                }
+              ],
+              "folders": [],
+              "name": "dossier B"
+            }
+          ],
+          "name": "dossier A"
+        }
+      ],
+      "files": [
+        {
+          "id": 4,
+          "name": "Formidable Oak",
+          "surname": "C - Tour un peu tristounette",
+          "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+        }
+      ]
+    }
+  },
+  {
+    "id": 4,
+    "name": "Nouveauté 2",
+    "total": 0,
+    "rootFolder": {
+      "folders": [],
+      "files": []
+    }
   }
 ]

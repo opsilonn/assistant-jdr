@@ -12,14 +12,14 @@ import deletePlaylistAudio from "../controllers/playlist/delete.playlist.audio.j
 
 const router = Router();
 // Playlist
-router.get("/playlist/:playlistId", getPlaylist);
+router.get("/playlist/:idPlaylist", getPlaylist);
 router.get("/playlists", getPlaylists);
 router.post("/playlist", postPlaylist);
-router.put("/playlist/:playlistId", putPlaylist);
-router.delete("/playlist/:playlistId", deletePlaylist);
+router.put("/playlist/:idPlaylist", putPlaylist);
+router.delete("/playlist/:idPlaylist", deletePlaylist);
 // Playlist's audio
-router.post("/playlist/:playlistId/audio", postPlaylistAudio);
-router.put("/playlist/:playlistId/audio/:audioId", putPlaylistAudio);
-router.delete("/playlist/:playlistId/audio/:audioId", deletePlaylistAudio);
+router.post("/playlist/:idPlaylist/audio", postPlaylistAudio);
+router.put("/playlist/:idPlaylist/audio/:idAudio", putPlaylistAudio);
+router.delete("/playlist/:idPlaylist/audio/:idAudio", deletePlaylistAudio);
 
 export default router;

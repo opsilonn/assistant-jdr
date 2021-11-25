@@ -16,6 +16,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "howler": "^2.2.3",
+    "jsonpath": "^1.1.1",
     "morgan": "^1.10.0",
     "nuxt": "^2.15.7",
     "pg": "^8.7.1",

@@ -4,7 +4,7 @@ const state = () => ({
 
 const getters = {
   /** */
-  getPlaylist: (state) => (id) => state.playlists.find((_) => _.id === id),
+  getPlaylistById: (state) => (id) => state.playlists.find((_) => _.id === id),
 };
 
 const mutations = {
@@ -14,12 +14,11 @@ const mutations = {
    * @param {*} playlist
    */
   addPlaylist(state, playlist) {
-    const curr = state.playlists.find((_) => _.id === playlist.id);
-    if (!curr) {
+    const index = state.playlists.findIndex((_) => _.id === playlist.id);
+    if (index < 0) {
       state.playlists.push(playlist);
     } else {
-      curr.description = playlist.description;
-      curr.finished = playlist.finished;
+      state.playlists[index] = playlist;
     }
   },
 
@@ -47,20 +46,19 @@ const actions = {
   async createPlaylist({ commit }, { name }) {
     const playlist = await this.$axios.$post("/api/playlist", {
       name: name,
-      audios: [],
     });
     commit("addPlaylist", playlist);
     return playlist;
   },
 
   /** */
-  async updatePlaylist({ commit }, { id, name, audios }) {
+  async updatePlaylist({ commit }, { id, name }) {
     const playlist = await this.$axios.$put(`/api/playlist/${id}`, {
       id: id,
       name: name,
-      audios: audios,
     });
     commit("addPlaylist", playlist);
+    return playlist;
   },
 
   /** */
@@ -73,15 +71,38 @@ const actions = {
   /** */
   async updatePlaylistAudio(
     { commit },
-    { idPlaylist, audio = { id, name, surname } }
+    { idPlaylist, audio = { id, name, surname }, path }
   ) {
     const url = `/api/playlist/${idPlaylist}/audio/${audio.id}`;
-    const playlist = await this.$axios.$put(url, {
+    const params = {
       id: audio.id,
       name: audio.name,
       surname: audio.surname,
-    });
+      audio: {
+        id: audio.id,
+        name: audio.name,
+        surname: audio.surname,
+      },
+      path: path,
+    };
+    const playlist = await this.$axios.$put(url, params);
     commit("addPlaylist", playlist);
+  },
+
+  /** */
+  async addAudioToPlaylist(
+    { commit },
+    { idPlaylist, audio = { id, name, path } }
+  ) {
+    const url = `/api/playlist/${idPlaylist}/audio`;
+    const params = {
+      id: audio.id,
+      name: audio.name,
+      path: audio.path,
+    };
+    this.$axios
+      .$post(url, params)
+      .then((playlist) => commit("addPlaylist", playlist));
   },
 };
 

@@ -7,8 +7,9 @@ import Playlist from "../../models/playlist.model.js";
 export default async function deletePlaylistAudio(req, res) {
   try {
     await Playlist.deleteAudio(
-      parseInt(req.params.playlistId),
-      parseInt(req.params.audioId)
+      parseInt(req.params.idPlaylist),
+      parseInt(req.params.idAudio),
+      req.body.path
     );
     res.status(204).json(true);
   } catch (err) {

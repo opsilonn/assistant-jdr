@@ -23,7 +23,7 @@
           :transition="false"
         >
           <v-list v-if="isPageLoaded">
-            <ListItemAudioManager
+            <ListItemAudio
               :audioFolder="getAudioFolderByTitle(tab.title)"
               :enableAudioMgmt="true"
             />
@@ -65,8 +65,8 @@
                       <v-list-item-title v-text="playlist.name" />
                       <v-list-item-subtitle
                         v-text="
-                          `piste${playlist.audios.length > 1 ? 's' : ''} : ${
-                            playlist.audios.length
+                          `piste${playlist.total ? 's' : ''} : ${
+                            playlist.total
                           }`
                         "
                       />
@@ -94,7 +94,9 @@
                 <v-btn
                   class="ma-4 zoom-sm primary"
                   rounded
-                  @click="dialogPlaylistAudio = true"
+                  @click="
+                    openDialogPlaylist(playlists[selectedPlaylistIndex].id)
+                  "
                 >
                   <v-icon left> mdi-folder-plus </v-icon>
                   Ajouter musique
@@ -102,7 +104,12 @@
               </center>
 
               <!-- No music warning -->
-              <div v-if="playlists[selectedPlaylistIndex].audios.length === 0">
+              <div
+                v-if="
+                  !playlists[selectedPlaylistIndex].rootFolder.folders.length &&
+                  !playlists[selectedPlaylistIndex].rootFolder.files.length
+                "
+              >
                 <center class="font-italic pa-8">
                   Cette playlist est vide :'(
                 </center>
@@ -110,8 +117,9 @@
 
               <!-- playlist's audios -->
               <div v-else>
-                <ListItemAudioManager
-                  :audioFolder="playlists[selectedPlaylistIndex]"
+                <ListItemAudio
+                  :audioFolder="playlists[selectedPlaylistIndex].rootFolder"
+                  :idPlaylist="playlists[selectedPlaylistIndex].id"
                   :enableAudioMgmt="true"
                   :enableEdit="true"
                 />
@@ -131,17 +139,17 @@
       <DialogPlaylist
         @close-dialog="dialogPlaylist = false"
         :dialog="dialogPlaylist"
-        :playlistId="dialogPlaylistId"
+        :idPlaylist="currentPlaylistId"
         @playlist-new="newPlaylist"
         @playlist-edit="editPlaylist"
         @playlist-delete="deletePlaylist"
       />
 
-      <!-- Dialog to add or remove audios form a playlist -->
+      <!-- Dialog to add or remove audios from a playlist -->
       <DialogPlaylistAudio
         @close-dialog="dialogPlaylistAudio = false"
         :dialog="dialogPlaylistAudio"
-        :playlistId="selectedPlaylistIndex"
+        :idPlaylist="currentPlaylistId"
       />
     </div>
   </div>
@@ -154,7 +162,6 @@ import { mapActions, mapState, mapMutations } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
 import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
 import ListItemAudio from "@/components/list-item-audio";
-import ListItemAudioManager from "@/components/list-item-audio-manager";
 import Loader from "@/components/loader";
 import FooterAudio from "@/components/footer-audio";
 
@@ -167,7 +174,6 @@ export default {
     DialogPlaylistAudio,
     FooterAudio,
     ListItemAudio,
-    ListItemAudioManager,
     Loader,
   },
 
@@ -182,7 +188,7 @@ export default {
     selectedPlaylistIndex: -1,
 
     dialogPlaylist: false,
-    dialogPlaylistId: undefined,
+    currentPlaylistId: undefined,
     dialogPlaylistAudio: false,
   }),
 
@@ -192,12 +198,14 @@ export default {
     ...mapState("playlist", ["playlists"]),
     ...mapState("audioPlayer", ["audioCategories"]),
 
+    /** */
     playlistIds() {
       return this.playlists.map((_) => _.id);
     },
   },
 
   watch: {
+    /** */
     playlistIds(newValue, oldValue) {
       if (oldValue.length < newValue.length) {
         this.selectedPlaylistIndex = this.playlists.length - 1;
@@ -218,6 +226,8 @@ export default {
     const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
     this.tabs = tabsCategory.concat([this.tabPlaylist]);
 
+    this.selectedPlaylistIndex = -1;
+
     // All is complete, we consider the page loaded
     this.isPageLoaded = true;
   },
@@ -236,20 +246,22 @@ export default {
       return this.audioFolder.folders.find((folder) => folder.name === name);
     },
 
-    closeDialog() {
-      this.dialogPlaylist = false;
-    },
-
     /** */
     openDialogNew() {
-      this.dialogPlaylistId = undefined;
+      this.currentPlaylistId = undefined;
       this.dialogPlaylist = true;
     },
 
     /** */
     openDialogEdit(id) {
-      this.dialogPlaylistId = id;
+      this.currentPlaylistId = id;
       this.dialogPlaylist = true;
+    },
+
+    /** */
+    openDialogPlaylist(id) {
+      this.currentPlaylistId = id;
+      this.dialogPlaylistAudio = true;
     },
 
     /** */

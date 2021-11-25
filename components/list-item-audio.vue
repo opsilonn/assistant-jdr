@@ -1,7 +1,10 @@
 <template>
   <div>
     <!-- content - folders -->
-    <v-list-item v-for="(folder, i) in audioFolder.folders" :key="i">
+    <v-list-item
+      v-for="(folder, i) in audioFolder.folders"
+      :key="`folder_${i}`"
+    >
       <v-list-group sub-group>
         <!-- title -->
         <template v-slot:activator>
@@ -11,11 +14,13 @@
         <!-- recursive : call self -->
         <ListItemAudio
           :audioFolder="folder"
-          @set-audio="setAudio"
-          @edit-playlist-audio="forwardEditAudioFromPlaylist"
           :enableAudioMgmt="enableAudioMgmt"
           :enableEdit="enableEdit"
           :enableAddition="enableAddition"
+          :idPlaylist="idPlaylist"
+          :pathPlaylist="
+            idPlaylist >= 0 ? `${pathPlaylist}/${folder.name}` : ''
+          "
         />
       </v-list-group>
     </v-list-item>
@@ -23,10 +28,9 @@
     <!-- content - files -->
     <v-list-item
       v-for="(file, i) in files"
-      :key="i"
+      :key="`file_${i}`"
       two-line
-      link
-      @click="setAudio(file)"
+      @click="setAudioIfAllowed(file)"
       @keyup.enter.prevent
     >
       <!-- icon -->
@@ -41,6 +45,7 @@
           v-if="!!file.isEditing"
           :ref="`form_playlist_audio_${file.id}`"
           v-model="file.form"
+          @submit.prevent
         >
           <v-text-field
             v-model="file.surnameEdit"
@@ -71,34 +76,38 @@
       <!-- actions -->
       <v-list-item-action class="d-flex flex-row ma-4">
         <!-- action : Edit -->
-        <v-icon
-          v-if="enableEdit && !file.isEditing"
-          class="zoom"
-          color="grey lighten-1"
-          v-text="'mdi-pencil'"
-          @click.stop="beginEdit(file)"
-        />
-        <v-icon
-          v-if="enableEdit && file.isEditing"
-          class="zoom"
-          color="grey lighten-1"
-          v-text="'mdi-cancel'"
-          @click.stop="cancelEdit(file)"
-        />
-        <!-- action : Add -->
-        <v-icon
-          v-if="enableAddition"
-          class="zoom"
-          color="grey lighten-1"
-          v-text="'mdi-plus-circle'"
-        />
-        <!-- action : Remove -->
-        <v-icon
-          v-if="enableAddition"
-          class="zoom"
-          color="grey lighten-1"
-          v-text="'mdi-delete'"
-        />
+        <div v-if="enableEdit">
+          <v-icon
+            v-if="file.isEditing"
+            class="zoom"
+            color="grey lighten-1"
+            v-text="'mdi-cancel'"
+            @click.stop="cancelEdit(file)"
+          />
+          <v-icon
+            v-else
+            class="zoom"
+            color="grey lighten-1"
+            v-text="'mdi-pencil'"
+            @click.stop="beginEdit(file)"
+          />
+        </div>
+        <!-- action : Add or Remove from playlist -->
+        <div v-if="enableAddition">
+          <v-icon
+            v-if="true"
+            class="zoom"
+            color="grey lighten-1"
+            v-text="'mdi-delete'"
+          />
+          <v-icon
+            v-else
+            class="zoom"
+            color="grey lighten-1"
+            v-text="'mdi-plus-circle'"
+            @click="manageAddAudioToPlaylist(file)"
+          />
+        </div>
       </v-list-item-action>
     </v-list-item>
   </div>
@@ -106,7 +115,7 @@
 
 <script>
 // Imports
-import { mapActions, mapState, mapMutations } from "vuex";
+import { mapGetters, mapActions, mapMutations } from "vuex";
 import ListItemAudio from "@/components/list-item-audio";
 import MixinRules from "@/mixins/mixin-rules";
 
@@ -119,8 +128,19 @@ export default {
 
   props: {
     audioFolder: {
-      type: [],
+      type: Object,
       required: false,
+      default: { folders: [], files: [], name: "" },
+    },
+    idPlaylist: {
+      type: Number,
+      required: false,
+      default: -1,
+    },
+    pathPlaylist: {
+      type: String,
+      required: false,
+      default: "",
     },
     enableAudioMgmt: {
       type: Boolean,
@@ -139,27 +159,69 @@ export default {
     },
   },
 
+  data: () => ({
+    parameters: [],
+  }),
+
   computed: {
+    // Imports
+    ...mapGetters("playlist", ["getPlaylistById"]),
+
     /** */
     files() {
       return !!this.audioFolder.files
         ? this.audioFolder.files
         : this.audioFolder.audios;
     },
+
+    currentPathPlaylist() {
+      return `${pathPlaylist}/${folder.name}`;
+    },
+
+    doesPlaylistContainsAudio() {
+      return (audio) =>
+        this.getPlaylistById(this.idPlaylist).audios.some(
+          (_) => _.path === audio.path
+        );
+    },
+  },
+
+  mounted() {
+    /*
+    if (this.enableEdit || this.enableAddition) {
+      console.log(this.audioFolder);
+      console.log(this.audioFolder.audios);
+      const arr = this.audioFolder.audios
+        ? this.audioFolder.audios
+        : this.audioFolder.files;
+
+      arr.forEach((audio) => {
+        const curr = {};
+
+        if (this.enableAddition) {
+          curr.isAudioInPlaylist = this.getPlaylistById(
+            this.idPlaylist
+          ).audios.some((_) => _.path === audio.path);
+        }
+
+        this.parameters.push(curr);
+      });
+
+      console.log(this.parameters);
+    }
+    */
   },
 
   methods: {
     // Imports
+    ...mapActions("playlist", ["updatePlaylistAudio", "addAudioToPlaylist"]),
     ...mapMutations("audioPlayer", ["setAudio"]),
 
     /** */
-    removeAudioFromPlaylist(file) {
-      this.$emit("remove-audio-from-playlist", file);
-    },
-
-    /** */
-    addAudioFromPlaylist(file) {
-      this.$emit("add-audio-from-playlist", file);
+    setAudioIfAllowed(file) {
+      if (this.enableAudioMgmt && !file.isEditing) {
+        this.setAudio(file);
+      }
     },
 
     /** */
@@ -175,23 +237,41 @@ export default {
     },
 
     /** */
-    forwardEditAudioFromPlaylist(file) {
-      this.$emit("edit-playlist-audio", file);
-    },
-
-    /** */
-    editAudioFromPlaylist(file) {
+    async editAudioFromPlaylist(file) {
       // If the form is valid
       const formId = `form_playlist_audio_${file.id}`;
       const form = this.$refs[formId][0];
       if (form.validate()) {
+        // We update the playlist
+        const data = {
+          idPlaylist: this.idPlaylist,
+          audio: {
+            id: file.id,
+            name: file.name,
+            surname: file.surnameEdit,
+          },
+          path: this.pathPlaylist || "",
+        };
+        const res = await this.updatePlaylistAudio(data);
+
+        console.log(res);
+
         // We first edit the object
         this.$set(file, "isEditing", false);
         this.$set(file, "surname", file.surnameEdit);
-
-        // We then send the event
-        this.$emit("edit-playlist-audio", file);
       }
+    },
+
+    /** */
+    removeAudioFromPlaylist(file) {},
+
+    /** */
+    async manageAddAudioToPlaylist(file) {
+      const params = {
+        idPlaylist: this.idPlaylist,
+        audio: file,
+      };
+      await this.addAudioToPlaylist(params);
     },
   },
 };

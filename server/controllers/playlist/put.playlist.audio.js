@@ -7,9 +7,10 @@ import Playlist from "../../models/playlist.model.js";
 export default async function putPlaylistAudio(req, res) {
   try {
     const playlist = await Playlist.updateAudio(
-      parseInt(req.params.playlistId),
-      parseInt(req.params.audioId),
-      req.body
+      parseInt(req.params.idPlaylist),
+      parseInt(req.params.idAudio),
+      req.body.audio,
+      req.body.path
     );
     res.status(200).json(playlist);
   } catch (err) {

@@ -7,7 +7,7 @@ import Playlist from "../../models/playlist.model.js";
 export default async function putPlaylist(req, res) {
   try {
     const playlist = await Playlist.update(
-      parseInt(req.params.playlistId),
+      parseInt(req.params.idPlaylist),
       req.body
     );
     res.status(200).json(playlist);

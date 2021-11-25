@@ -1,7 +1,13 @@
 <template>
   <v-container>
     <!-- Dialog -->
-    <v-dialog v-model="dialog" max-width="500px" @click:outside="closeDialog">
+    <v-dialog
+      v-model="dialog"
+      max-width="800px"
+      scrollable
+      @click:outside="closeDialog"
+      style="height: 300px"
+    >
       <v-card>
         <!-- Title -->
         <v-card-title
@@ -28,10 +34,10 @@
               :transition="false"
             >
               <v-list>
-                <ListItemAudioManager
+                <ListItemAudio
                   :audioFolder="getAudioFolderByTitle(tab.title)"
-                  @set-audio="setAudio"
-                  :enableAudioMgmt="true"
+                  :enableAddition="true"
+                  :idPlaylist="idPlaylist"
                 />
               </v-list>
             </v-tab-item>
@@ -42,7 +48,7 @@
         <v-card-actions>
           <v-spacer />
           <!-- Button : action -->
-          <v-btn color="success" text v-text="'Valider'" />
+          <v-btn color="success" text v-text="'Valider'" @click="closeDialog" />
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -57,7 +63,7 @@ export default {
   name: "DialogPlaylistAudio",
 
   props: {
-    playlistId: {
+    idPlaylist: {
       type: Number,
       required: false,
     },
@@ -76,7 +82,7 @@ export default {
     dialog() {
       if (this.dialog) {
         // get the Playlist
-        const playlist = this.getPlaylist(this.playlistId);
+        const playlist = this.getPlaylistById(this.idPlaylist);
       }
     },
   },
@@ -84,7 +90,7 @@ export default {
   computed: {
     // Imports
     ...mapState("audio", ["audioFolder"]),
-    ...mapGetters("playlist", ["getPlaylist"]),
+    ...mapGetters("playlist", ["getPlaylistById"]),
     ...mapState("audioPlayer", ["audioCategories"]),
   },
 
@@ -101,16 +107,6 @@ export default {
     getAudioFolderByTitle(name) {
       return this.audioFolder.folders.find((folder) => folder.name === name);
     },
-
-    setAudio() {
-      console.log("IMPLEMENT ME !!!");
-    },
-
-    /** */
-    remove() {},
-
-    /** */
-    action() {},
   },
 };
 </script>

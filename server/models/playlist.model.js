@@ -4,15 +4,17 @@ import { promisify } from "util";
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
-const playlistsAudio = path.join(__dirname, "../data/playlists.json");
+const pathFile = path.join(__dirname, "../data/playlists.json");
 
 export default class Playlist {
   /** @type {Number} */
   id;
   /** @type {String} */
   name;
-  /** @type {} */
-  audios;
+  /** @type {Object} */
+  rootFolder;
+  /** @type {Number} */
+  total;
 
   /**
    * Constructor
@@ -21,7 +23,8 @@ export default class Playlist {
   constructor(newObj) {
     this.id = newObj.id;
     this.name = newObj.name;
-    this.audios = [];
+    this.rootFolder = { folders: [], files: [] };
+    this.total = newObj.total || 0;
   }
 
   /**
@@ -32,12 +35,12 @@ export default class Playlist {
     // Read the audio
     const playlists = await this.getAll();
 
-    // Find the correct instance
+    // Find the correct playlist
     const playlist = playlists.find((_) => _.id === id);
 
-    // If the instance was not found : throw error
+    // If the playlist was not found : throw error
     if (!playlist) {
-      throw new Error("Instance not found !");
+      throw new Error("Playlist not found !");
     }
 
     return playlist;
@@ -48,7 +51,7 @@ export default class Playlist {
    */
   static async getAll() {
     // Read the audio
-    const playlists = await readFile(playlistsAudio, "utf8");
+    const playlists = await readFile(pathFile, "utf8");
 
     // Parse the audio as JSON
     return JSON.parse(playlists);
@@ -59,22 +62,22 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async add(playlistReceived) {
-    // Read the audio
-    const playlists = await this.getAll();
-
-    // Get and set the id
-    const maxId = Math.max.apply(
-      null,
-      playlists.map((_) => _.id)
-    );
-    playlistReceived.id = maxId + 1;
+    // Get all the playlists
+    let playlists = await this.getAll();
 
     // Create new Playlist
-    const playlist = new Playlist(playlistReceived);
+    const playlist = new Playlist({
+      id:
+        Math.max.apply(
+          null,
+          playlists.map((_) => _.id)
+        ) + 1,
+      name: playlistReceived.name,
+    });
 
     // Add new Playlist
     playlists.push(playlist);
-    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
   }
@@ -86,20 +89,20 @@ export default class Playlist {
    * @returns {Promise<Playlist>}
    */
   static async update(id, playlistReceived) {
-    // Read the audio
+    // Get all the playlists
     let playlists = await this.getAll();
 
-    // We get the specific index
+    // We get the wanted playlist
     const playlist = playlists.find((_) => _.id === id);
 
     // If not found : throw Error
     if (!playlist) {
-      throw new Error("Instance not found !");
+      throw new Error("Playlist not found !");
     }
 
     // We only update the name
     playlist.name = playlistReceived.name;
-    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
   }
@@ -108,123 +111,168 @@ export default class Playlist {
    * @param {Number} id
    */
   static async delete(id) {
-    // Read the audio
+    // Get all the playlists
     let playlists = await this.getAll();
 
-    // get index of the instance to remove
+    // get index of the playlist to remove
     const index = playlists.findIndex((_) => _.id === id);
 
     // invalid index : throw Error
     if (index <= -1) {
-      throw new Error("Instance not found !");
+      throw new Error("Playlist not found !");
     }
 
     // Remove found Playlist
     playlists.splice(index, 1);
 
     // Re-write audio
-    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
   }
 
   /**
    *
-   * @param {Number} id
+   * @param {Number} idPlaylist
    * @param {Audio} audio
+   * @param {String} path
    * @returns {Promise<Playlist>}
    */
-  static async addAudio(id, audio) {
-    // Read the audio
+  static async addAudio(idPlaylist, audio, path) {
+    // Get all the playlists
     let playlists = await this.getAll();
 
-    // We get the row
-    const playlist = playlists.find((_) => _.id === id);
+    // We get the wanted playlist
+    const playlist = playlists.find((_) => _.id === idPlaylist);
 
     // If not found : throw Error
     if (!playlist) {
-      throw new Error("Instance not found !");
+      throw new Error("Playlist not found !");
     }
 
-    // If audio already in playlist : throw Error
-    if (playlist.audios.some((_) => _.path === audio.path)) {
-      throw new Error("Audio already in playlist !");
+    // We fetch the folder in the arborescence
+    let folder = {};
+    try {
+      folder = this.getSubfolder(playlist.rootFolder, path);
+    } catch (err) {
+      throw new Error("Invalid path !");
     }
 
-    // Get and set the id
-    const maxId = Math.max.apply(
-      null,
-      playlist.audios.map((_) => _.id)
-    );
-    audio.id = maxId + 1;
+    if (folder.files.some((file) => file.path === audio.path)) {
+      throw new Error("Duplicate audio in folder !");
+    }
 
-    // We add the audio
-    playlist.audios.push(audio);
-    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
+    const newAudio = {
+      id:
+        Math.max.apply(
+          null,
+          folder.files.map((_) => _.id)
+        ) + 1,
+      name: audio.name,
+      surname: audio.surname,
+      path: audio.path,
+    };
+    playlist.total += 1;
 
+    folder.files.push(newAudio);
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
     return playlist;
   }
 
   /**
    *
-   * @param {Number} playlistId
-   * @param {Number} audioId
+   * @param {Number} idPlaylist
+   * @param {Number} idAudio
    * @param {Audio} audioReceived
+   * @param {String} path
    * @returns {Promise<Playlist>}
    */
-  static async updateAudio(playlistId, audioId, audioReceived) {
-    // Read the audio
+  static async updateAudio(idPlaylist, idAudio, audioReceived, path) {
+    // Get all the playlists
     let playlists = await this.getAll();
 
-    // We get the row
-    const playlist = playlists.find((_) => _.id === playlistId);
+    // We get the wanted playlist
+    const playlist = playlists.find((_) => _.id === idPlaylist);
 
     // If not found : throw Error
     if (!playlist) {
-      throw new Error("Instance not found !");
+      throw new Error("Playlist not found !");
     }
 
-    // We get the audio row
-    const audio = playlist.audios.find((_) => _.id === audioId);
-
-    // If not found : throw Error
-    if (!audio) {
-      throw new Error("Instance not found !");
+    // We fetch the folder in the arborescence
+    let folder = {};
+    try {
+      folder = this.getSubfolder(playlist.rootFolder, path);
+    } catch (err) {
+      throw new Error("Invalid path !");
     }
 
-    // We only update the name
-    audio.surname = audioReceived.surname;
-    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
+    // We update the file
+    const file = folder.files.find((f) => f.id === idAudio);
+    file.surname = audioReceived.surname;
+    console.log(file.name, " into ", audioReceived.surname);
 
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
     return playlist;
   }
 
   /**
-   * @param {Number} playlistId
-   * @param {Number} audioId
+   * @param {Number} idPlaylist
+   * @param {Number} idAudio
+   * @param {String} path
    */
-  static async deleteAudio(playlistId, audioId) {
-    // Read the audio
+  static async deleteAudio(idPlaylist, idAudio, path) {
+    // Get all the playlists
     let playlists = await this.getAll();
 
-    // get the row
-    const playlist = playlists.find((_) => _.id === playlistId);
+    // We get the wanted playlist
+    const playlist = playlists.find((_) => _.id === idPlaylist);
 
     // If not found : throw Error
     if (!playlist) {
-      throw new Error("Instance not found !");
+      throw new Error("Playlist not found !");
     }
 
-    // get index of the instance to remove
-    const indexAudio = playlist.audios.findIndex((_) => _.id === audioId);
-
-    // If not found : throw Error
-    if (indexAudio < 0) {
-      throw new Error("Instance not found !");
+    // We fetch the folder in the arborescences
+    let folder = {};
+    try {
+      folder = this.getSubfolder(playlist.rootFolder, path);
+    } catch (err) {
+      throw new Error("Invalid path !");
     }
 
-    // Remove from Playlist
-    playlist.audios.splice(indexAudio, 1);
+    // Remove file from Playlist
+    const indexFile = folder.files.findIndex((file) => file.id === idAudio);
+    folder.files.splice(indexFile, 1);
+    playlist.total -= 1;
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
 
-    // Re-write audio
-    writeFile(playlistsAudio, JSON.stringify(playlists, null, 2), "utf8");
+    return true;
+  }
+
+  /**
+   *
+   * @param {*} folder
+   * @param {*} path
+   * @returns
+   */
+  static getSubfolder(folder, path) {
+    // If we dwelve deeper in the tree
+    if (path.includes("/")) {
+      // We remove the first "/"
+      path = path.substring(1, path.length);
+
+      const index = path.includes("/") ? path.indexOf("/") : path.length;
+      const currentPath = path.substring(0, index);
+      const nextPath = path.substring(index, path.length);
+      const nextFolder = folder.folders.find((f) => f.name === currentPath);
+
+      if (!nextFolder) {
+        throw new Error("Invalid path !");
+      }
+
+      return this.getSubfolder(nextFolder, nextPath);
+    }
+
+    // Return current folder
+    return folder;
   }
 }
