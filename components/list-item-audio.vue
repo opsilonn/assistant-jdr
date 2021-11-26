@@ -228,7 +228,7 @@ export default {
     beginEdit(file) {
       this.$set(file, "isEditing", true);
       this.$set(file, "form", false);
-      this.$set(file, "surnameEdit", file.surname);
+      this.$set(file, "surnameEdit", file.surname || "");
     },
 
     /** */
@@ -241,20 +241,21 @@ export default {
       // If the form is valid
       const formId = `form_playlist_audio_${file.id}`;
       const form = this.$refs[formId][0];
-      if (form.validate()) {
-        // We update the playlist
-        const data = {
-          idPlaylist: this.idPlaylist,
-          audio: {
-            id: file.id,
-            name: file.name,
-            surname: file.surnameEdit,
-          },
-          path: this.pathPlaylist || "",
-        };
-        const res = await this.updatePlaylistAudio(data);
 
-        console.log(res);
+      if (form.validate()) {
+        // We update the playlist if the surname is different
+        if (file.surname !== file.surnameEdit) {
+          const data = {
+            idPlaylist: this.idPlaylist,
+            audio: {
+              id: file.id,
+              name: file.name,
+              surname: file.surnameEdit,
+            },
+            path: this.pathPlaylist || "",
+          };
+          const res = await this.updatePlaylistAudio(data);
+        }
 
         // We first edit the object
         this.$set(file, "isEditing", false);

@@ -14,12 +14,14 @@
         {
           "id": 2,
           "name": "feu de camp",
-          "path": "/audio/Ambiance/nature/feu de camp.mp3"
+          "path": "/audio/Ambiance/nature/feu de camp.mp3",
+          "surname": ""
         },
         {
           "id": 3,
           "name": "Forêt",
-          "path": "/audio/Ambiance/nature/Forêt.mp3"
+          "path": "/audio/Ambiance/nature/Forêt.mp3",
+          "surname": ""
         }
       ],
       "folders": []

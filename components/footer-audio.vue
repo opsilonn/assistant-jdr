@@ -6,15 +6,23 @@
         <v-row align="center">
           <!-- col 1 - category -->
           <v-col cols="3">
-            <h3 class="font-weight-bold text-right" v-text="tab.title" />
+            <h3
+              class="font-weight-bold text-right"
+              :class="{ 'error--text': tab.error }"
+              v-text="tab.title"
+            />
           </v-col>
 
           <!-- col 2 - name -->
           <v-col cols="6">
             <v-card-text>
-              <div>
+              <div :class="{ 'error--text': tab.error }">
                 {{ tab.audio.surname || tab.audio.name || "..." }}
-                <span v-if="tab.audio.surname" class="font-italic">
+                <span
+                  v-if="tab.audio.surname"
+                  class="font-italic"
+                  :class="{ 'error--text': tab.error }"
+                >
                   ({{ tab.audio.name }})
                 </span>
               </div>

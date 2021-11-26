@@ -10,6 +10,7 @@ const state = () => ({
       howl: undefined,
       play: false,
       loop: false,
+      error: false,
       volume: 1,
     },
     {
@@ -19,6 +20,7 @@ const state = () => ({
       howl: undefined,
       play: false,
       loop: false,
+      error: false,
       volume: 1,
     },
     {
@@ -28,6 +30,7 @@ const state = () => ({
       howl: undefined,
       play: false,
       loop: false,
+      error: false,
       volume: 1,
     },
   ],
@@ -65,12 +68,23 @@ const mutations = {
 
     // We play the audio file
     category.howl.play();
+    category.error = false;
 
     // When it ends, and if loop is disabled : disable the play flag
     category.howl.on("end", () => {
       if (!category.loop) {
         category.play = false;
       }
+    });
+
+    // If it fails to load
+    category.howl.on("loaderror", () => {
+      category.play = false;
+      category.howl = null;
+      category.error = true;
+      alert(
+        `Piste audio non trouvée\n - nom : ${audio.name}\n - chemin : ${audio.path}`
+      );
     });
   },
 

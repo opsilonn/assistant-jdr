@@ -167,7 +167,7 @@ export default class Playlist {
           folder.files.map((_) => _.id)
         ) + 1,
       name: audio.name,
-      surname: audio.surname,
+      surname: "",
       path: audio.path,
     };
     playlist.total += 1;
@@ -207,8 +207,7 @@ export default class Playlist {
 
     // We update the file
     const file = folder.files.find((f) => f.id === idAudio);
-    file.surname = audioReceived.surname;
-    console.log(file.name, " into ", audioReceived.surname);
+    file.surname = audioReceived.surname || "";
 
     writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
     return playlist;
