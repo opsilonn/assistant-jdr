@@ -121,7 +121,6 @@
                   :audioFolder="playlists[selectedPlaylistIndex].rootFolder"
                   :idPlaylist="playlists[selectedPlaylistIndex].id"
                   :enableAudioMgmt="true"
-                  :enableEdit="true"
                 />
               </div>
             </v-col>

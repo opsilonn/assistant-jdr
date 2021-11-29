@@ -102,6 +102,10 @@ export default class Playlist {
 
     // We only update the name
     playlist.name = playlistReceived.name;
+    if (playlistReceived.rootFolder) {
+      playlist.rootFolder = playlistReceived.rootFolder;
+      playlist.total = playlistReceived.total;
+    }
     writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;

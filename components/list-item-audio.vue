@@ -16,7 +16,6 @@
           :audioFolder="folder"
           :enableAudioMgmt="enableAudioMgmt"
           :enableEdit="enableEdit"
-          :enableAddition="enableAddition"
           :idPlaylist="idPlaylist"
           :pathPlaylist="
             idPlaylist >= 0 ? `${pathPlaylist}/${folder.name}` : ''
@@ -91,9 +90,8 @@
             v-text="'mdi-pencil'"
             @click.stop="beginEdit(file)"
           />
-        </div>
-        <!-- action : Add or Remove from playlist -->
-        <div v-if="enableAddition">
+
+          <!-- action : Add or Remove from playlist -->
           <v-icon
             v-if="true"
             class="zoom"
@@ -148,11 +146,6 @@ export default {
       default: false,
     },
     enableEdit: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    enableAddition: {
       type: Boolean,
       required: false,
       default: false,

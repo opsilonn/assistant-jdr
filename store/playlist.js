@@ -1,5 +1,6 @@
 const state = () => ({
   playlists: [],
+  playlistDefault: { id: -1, name: "", rootFolder: { folders: [], files: [] } },
 });
 
 const getters = {
@@ -52,10 +53,12 @@ const actions = {
   },
 
   /** */
-  async updatePlaylist({ commit }, { id, name }) {
+  async updatePlaylist({ commit }, { id, name, rootFolder, total }) {
     const playlist = await this.$axios.$put(`/api/playlist/${id}`, {
       id: id,
       name: name,
+      rootFolder: rootFolder || undefined,
+      total: total || undefined,
     });
     commit("addPlaylist", playlist);
     return playlist;
