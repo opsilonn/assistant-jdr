@@ -25,7 +25,7 @@
           <v-list v-if="isPageLoaded">
             <ListItemAudio
               :audioFolder="getAudioFolderByTitle(tab.title)"
-              :enableAudioMgmt="true"
+              :enablePlay="true"
             />
           </v-list>
         </v-tab-item>
@@ -120,7 +120,7 @@
                 <ListItemAudio
                   :audioFolder="playlists[selectedPlaylistIndex].rootFolder"
                   :idPlaylist="playlists[selectedPlaylistIndex].id"
-                  :enableAudioMgmt="true"
+                  :enablePlay="true"
                 />
               </div>
             </v-col>
@@ -157,7 +157,7 @@
 <script>
 // Imports
 import { Howl, Howler } from "howler";
-import { mapActions, mapState, mapMutations } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
 import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
 import ListItemAudio from "@/components/list-item-audio";
@@ -187,7 +187,7 @@ export default {
     selectedPlaylistIndex: -1,
 
     dialogPlaylist: false,
-    currentPlaylistId: undefined,
+    currentPlaylistId: -1,
     dialogPlaylistAudio: false,
   }),
 
@@ -247,7 +247,7 @@ export default {
 
     /** */
     openDialogNew() {
-      this.currentPlaylistId = undefined;
+      this.currentPlaylistId = -1;
       this.dialogPlaylist = true;
     },
 

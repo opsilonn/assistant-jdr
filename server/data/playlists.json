@@ -2,26 +2,14 @@
   {
     "id": 1,
     "name": "1ère playlist",
-    "total": 3,
+    "total": 1,
     "rootFolder": {
       "files": [
         {
           "id": 1,
           "name": "Blighted Farm",
           "path": "/audio/Ambiance/campagne/Blighted Farm.mp3",
-          "surname": "blighteded"
-        },
-        {
-          "id": 2,
-          "name": "feu de camp",
-          "path": "/audio/Ambiance/nature/feu de camp.mp3",
-          "surname": ""
-        },
-        {
-          "id": 3,
-          "name": "Forêt",
-          "path": "/audio/Ambiance/nature/Forêt.mp3",
-          "surname": ""
+          "surname": "blight"
         }
       ],
       "folders": []

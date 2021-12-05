@@ -70,7 +70,7 @@
 <script>
 // Imports
 import { Howl, Howler } from "howler";
-import { mapActions, mapState, mapMutations } from "vuex";
+import { mapActions, mapMutations, mapState } from "vuex";
 
 export default {
   name: "ComponentFooterAudio",

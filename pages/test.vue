@@ -1,54 +1,65 @@
 <template>
-  <v-container>
-    <v-list>
-      <template>
-        <v-list-item v-for="(item, i) in list.data" :key="i">
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ item.bool ? item.val : "not authorized" }}
-            </v-list-item-title>
-          </v-list-item-content>
-
-          <v-list-item-action>
-            <v-icon
-              v-text="item.bool ? 'mdi-cancel' : 'mdi-pencil'"
-              @click="item.bool = !item.bool"
-            />
-          </v-list-item-action>
-        </v-list-item>
+  <v-card>
+    <v-toolbar>
+      <template v-slot:extension>
+        <v-btn fab color="cyan accent-2" bottom left absolute>
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
       </template>
+    </v-toolbar>
+
+    <v-list two-line subheader>
+      <v-subheader inset> Folders </v-subheader>
+
+      <v-list-item v-for="item in items" :key="item.title" link>
+        <v-list-item-avatar>
+          <v-icon :class="[item.iconClass]">
+            {{ item.icon }}
+          </v-icon>
+        </v-list-item-avatar>
+
+        <v-list-item-content>
+          <v-list-item-title>{{ item.title }}</v-list-item-title>
+
+          <v-list-item-subtitle>{{ item.subtitle }}</v-list-item-subtitle>
+        </v-list-item-content>
+
+        <v-list-item-action>
+          <v-btn icon>
+            <v-icon color="grey lighten-1"> mdi-information </v-icon>
+          </v-btn>
+        </v-list-item-action>
+      </v-list-item>
+
+      <v-divider inset></v-divider>
     </v-list>
-  </v-container>
+  </v-card>
 </template>
 
 <script>
-// Imports
-
 export default {
-  name: "PageTemplate",
-  transition: "slide-bottom",
-
   data: () => ({
-    list: {
-      data: [
-        { val: "alpha", bool: true },
-        { val: "beta", bool: false },
-        { val: "gamma", bool: true },
-        { val: "omega", bool: false },
-      ],
-    },
+    dialog: false,
+    items: [
+      {
+        icon: "mdi-folder",
+        iconClass: "grey lighten-1 white--text",
+        title: "Photos",
+        subtitle: "Jan 9, 2014",
+      },
+      {
+        icon: "mdi-folder",
+        iconClass: "grey lighten-1 white--text",
+        title: "Recipes",
+        subtitle: "Jan 17, 2014",
+      },
+      {
+        icon: "mdi-folder",
+        iconClass: "grey lighten-1 white--text",
+        title: "Work",
+        subtitle: "Jan 28, 2014",
+      },
+    ],
   }),
-
-  computed: {},
-
-  watch: {},
-
-  mounted() {},
-
-  methods: {},
-
-  head() {
-    return { title: "test" };
-  },
 };
 </script>

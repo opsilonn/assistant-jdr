@@ -1,6 +1,9 @@
 const state = () => ({
   playlists: [],
-  playlistDefault: { id: -1, name: "", rootFolder: { folders: [], files: [] } },
+  savedPlaylist: { id: -1, name: "", rootFolder: { folders: [], files: [] } },
+
+  currentPath: "",
+  currentIndex: -1,
 });
 
 const getters = {
@@ -9,6 +12,20 @@ const getters = {
 };
 
 const mutations = {
+  resetPlaylistHelper(state) {
+    state.currentPath = "";
+    state.currentIndex = -1;
+  },
+
+  setPlaylistHelper(state, { path, index }) {
+    state.currentPath = path;
+    state.currentIndex = index;
+  },
+
+  incrementPlaylistHelper(state) {
+    state.currentIndex++;
+  },
+
   /**
    *
    * @param {*} state
@@ -33,6 +50,10 @@ const mutations = {
     if (index >= 0) {
       state.playlists.splice(index, 1);
     }
+  },
+
+  setSavedPlaylist(state, savedPlaylist) {
+    state.savedPlaylist = savedPlaylist;
   },
 };
 
@@ -71,6 +92,33 @@ const actions = {
     return result;
   },
 
+  // SAVED
+
+  /** */
+  async fetchSavedPlaylist({ commit }, { id }) {
+    const savedPlaylist = await this.$axios.$get(`/api/playlist/${id}/saved`);
+    commit("setSavedPlaylist", savedPlaylist);
+  },
+
+  /** */
+  async addAudioToPlaylist(
+    { commit },
+    { idPlaylist, audio = { name, path }, path, index }
+  ) {
+    const url = `/api/playlist/${idPlaylist}/audio`;
+    const params = {
+      audio: {
+        name: audio.name,
+        path: audio.path,
+      },
+      path: path,
+      index: index,
+    };
+    this.$axios
+      .$post(url, params)
+      .then((playlist) => commit("setSavedPlaylist", playlist));
+  },
+
   /** */
   async updatePlaylistAudio(
     { commit },
@@ -90,22 +138,6 @@ const actions = {
     };
     const playlist = await this.$axios.$put(url, params);
     commit("addPlaylist", playlist);
-  },
-
-  /** */
-  async addAudioToPlaylist(
-    { commit },
-    { idPlaylist, audio = { id, name, path } }
-  ) {
-    const url = `/api/playlist/${idPlaylist}/audio`;
-    const params = {
-      id: audio.id,
-      name: audio.name,
-      path: audio.path,
-    };
-    this.$axios
-      .$post(url, params)
-      .then((playlist) => commit("addPlaylist", playlist));
   },
 };
 

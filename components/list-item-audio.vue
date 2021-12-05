@@ -14,8 +14,9 @@
         <!-- recursive : call self -->
         <ListItemAudio
           :audioFolder="folder"
-          :enableAudioMgmt="enableAudioMgmt"
+          :enablePlay="enablePlay"
           :enableEdit="enableEdit"
+          :enableAddition="enableAddition"
           :idPlaylist="idPlaylist"
           :pathPlaylist="
             idPlaylist >= 0 ? `${pathPlaylist}/${folder.name}` : ''
@@ -24,103 +25,122 @@
       </v-list-group>
     </v-list-item>
 
+    <!-- -->
+    <playlist-selector v-if="enableEdit" :path="pathPlaylist" :index="0" />
+
     <!-- content - files -->
-    <v-list-item
-      v-for="(file, i) in files"
-      :key="`file_${i}`"
-      two-line
-      @click="setAudioIfAllowed(file)"
-      @keyup.enter.prevent
-    >
-      <!-- icon -->
-      <v-list-item-icon>
-        <v-icon v-text="'mdi-music-note'" />
-      </v-list-item-icon>
+    <template v-for="(file, i) in files">
+      <v-list-item
+        :key="`file_${i}`"
+        two-line
+        @click.stop="itemClicked(file)"
+        @keyup.enter.prevent
+        extended
+      >
+        <!-- icon -->
+        <v-list-item-icon>
+          <v-icon v-text="'mdi-music-note'" />
+        </v-list-item-icon>
 
-      <!-- Text -->
-      <v-list-item-content @keyup.enter.prevent>
-        <!-- If editing -->
-        <v-form
-          v-if="!!file.isEditing"
-          :ref="`form_playlist_audio_${file.id}`"
-          v-model="file.form"
-          @submit.prevent
-        >
-          <v-text-field
-            v-model="file.surnameEdit"
-            :rules="[rules.max50, rules.ascii]"
-            :label="file.name"
-            counter
-            @click.stop
-            @keyup.enter.stop="editAudioFromPlaylist(file)"
+        <!-- Text -->
+        <v-list-item-content @keyup.enter.prevent>
+          <!-- If editing -->
+          <v-form
+            v-if="!!file.isEditing"
+            :ref="`form_playlist_audio_${file.id}`"
+            v-model="file.form"
+            @submit.prevent
           >
-            <template v-slot:append>
-              <v-fade-transition leave-absolute>
-                <v-icon
-                  v-text="'mdi-check'"
-                  @click.stop="editAudioFromPlaylist(file)"
-                />
-              </v-fade-transition>
-            </template>
-          </v-text-field>
-        </v-form>
+            <v-text-field
+              v-model="file.surnameEdit"
+              :rules="[rules.max50, rules.ascii]"
+              :label="file.name"
+              counter
+              @click.stop
+              @keyup.enter.stop="editAudioFromPlaylist(file)"
+            >
+              <template v-slot:append>
+                <v-fade-transition leave-absolute>
+                  <v-icon
+                    v-text="'mdi-check'"
+                    @click.stop="editAudioFromPlaylist(file)"
+                  />
+                </v-fade-transition>
+              </template>
+            </v-text-field>
+          </v-form>
 
-        <!-- Normal display -->
-        <div v-else>
-          <v-list-item-title v-text="file.surname ? file.surname : file.name" />
-          <v-list-item-subtitle v-if="file.surname" v-text="file.name" />
-        </div>
-      </v-list-item-content>
+          <!-- Normal display -->
+          <div v-else>
+            <v-list-item-title
+              v-text="file.surname ? file.surname : file.name"
+            />
+            <v-list-item-subtitle v-if="file.surname" v-text="file.name" />
+          </div>
+        </v-list-item-content>
 
-      <!-- actions -->
-      <v-list-item-action class="d-flex flex-row ma-4">
-        <!-- action : Edit -->
-        <div v-if="enableEdit">
+        <!-- actions -->
+        <v-list-item-action class="d-flex flex-row ma-4">
+          <!-- action : Add to playlist -->
           <v-icon
-            v-if="file.isEditing"
-            class="zoom"
-            color="grey lighten-1"
-            v-text="'mdi-cancel'"
-            @click.stop="cancelEdit(file)"
-          />
-          <v-icon
-            v-else
-            class="zoom"
-            color="grey lighten-1"
-            v-text="'mdi-pencil'"
-            @click.stop="beginEdit(file)"
-          />
-
-          <!-- action : Add or Remove from playlist -->
-          <v-icon
-            v-if="true"
-            class="zoom"
-            color="grey lighten-1"
-            v-text="'mdi-delete'"
-          />
-          <v-icon
-            v-else
+            v-if="enableAddition"
             class="zoom"
             color="grey lighten-1"
             v-text="'mdi-plus-circle'"
-            @click="manageAddAudioToPlaylist(file)"
+            @click.stop="addAudioToPlaylist(file)"
           />
-        </div>
-      </v-list-item-action>
-    </v-list-item>
+
+          <!-- action : Edit or remove -->
+          <div v-if="enableEdit">
+            <v-icon
+              v-if="file.isEditing"
+              class="zoom"
+              color="grey lighten-1"
+              v-text="'mdi-cancel'"
+              @click.stop="cancelEdit(file)"
+            />
+
+            <v-icon
+              v-else
+              class="zoom"
+              color="grey lighten-1"
+              v-text="'mdi-pencil'"
+              @click.stop="beginEdit(file)"
+            />
+
+            <!-- action : Remove from playlist -->
+            <v-icon
+              v-if="enableEdit"
+              class="zoom"
+              color="grey lighten-1"
+              v-text="'mdi-delete'"
+            />
+          </div>
+        </v-list-item-action>
+      </v-list-item>
+
+      <!-- -->
+      <playlist-selector
+        v-if="enableEdit"
+        :path="pathPlaylist"
+        :index="i + 1"
+      />
+    </template>
   </div>
 </template>
 
 <script>
 // Imports
-import { mapGetters, mapActions, mapMutations } from "vuex";
+import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
+import EventBus from "@/EventBus.js";
 import ListItemAudio from "@/components/list-item-audio";
+import PlaylistSelector from "@/components/playlist-selector";
 import MixinRules from "@/mixins/mixin-rules";
 
 export default {
   name: "ListItemAudio",
 
-  components: { ListItemAudio },
+  components: { ListItemAudio, PlaylistSelector },
 
   mixins: [MixinRules],
 
@@ -140,12 +160,17 @@ export default {
       required: false,
       default: "",
     },
-    enableAudioMgmt: {
+    enableEdit: {
       type: Boolean,
       required: false,
       default: false,
     },
-    enableEdit: {
+    enablePlay: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    enableAddition: {
       type: Boolean,
       required: false,
       default: false,
@@ -179,40 +204,15 @@ export default {
     },
   },
 
-  mounted() {
-    /*
-    if (this.enableEdit || this.enableAddition) {
-      console.log(this.audioFolder);
-      console.log(this.audioFolder.audios);
-      const arr = this.audioFolder.audios
-        ? this.audioFolder.audios
-        : this.audioFolder.files;
-
-      arr.forEach((audio) => {
-        const curr = {};
-
-        if (this.enableAddition) {
-          curr.isAudioInPlaylist = this.getPlaylistById(
-            this.idPlaylist
-          ).audios.some((_) => _.path === audio.path);
-        }
-
-        this.parameters.push(curr);
-      });
-
-      console.log(this.parameters);
-    }
-    */
-  },
-
   methods: {
     // Imports
-    ...mapActions("playlist", ["updatePlaylistAudio", "addAudioToPlaylist"]),
+    ...mapActions("playlist", ["updatePlaylistAudio"]),
+    ...mapMutations("playlist", ["resetPlaylistHelper"]),
     ...mapMutations("audioPlayer", ["setAudio"]),
 
     /** */
-    setAudioIfAllowed(file) {
-      if (this.enableAudioMgmt && !file.isEditing) {
+    itemClicked(file) {
+      if (this.enablePlay && !file.isEditing) {
         this.setAudio(file);
       }
     },
@@ -257,15 +257,8 @@ export default {
     },
 
     /** */
-    removeAudioFromPlaylist(file) {},
-
-    /** */
-    async manageAddAudioToPlaylist(file) {
-      const params = {
-        idPlaylist: this.idPlaylist,
-        audio: file,
-      };
-      await this.addAudioToPlaylist(params);
+    addAudioToPlaylist(file) {
+      EventBus.$emit(EventBus.ADD_TO_PLAYLIST, file);
     },
   },
 };
