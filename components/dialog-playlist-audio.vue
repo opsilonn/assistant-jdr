@@ -44,11 +44,11 @@
                 :transition="false"
               >
                 <v-list>
-                  <ListItemAudio
+                  <TreeviewAudio
                     :audioFolder="getAudioFolderByTitle(tab.title)"
                     :idPlaylist="idPlaylist"
+                    :enableDnd="true"
                     :enablePlay="true"
-                    :enableAddition="true"
                   />
                 </v-list>
               </v-tab-item>
@@ -58,18 +58,8 @@
 
           <!-- col 2 - playlist -->
           <v-col cols="6">
-            <div class="d-flex justify-center align-center mb-6">
-              <span>Décaler sélecteur à chaque ajout :</span>
-              <v-switch v-model="moveSelector" />
-            </div>
-
             <!-- No music warning -->
-            <div
-              v-if="
-                !savedPlaylist.rootFolder.folders.length &&
-                !savedPlaylist.rootFolder.files.length
-              "
-            >
+            <div v-if="!savedPlaylist.rootFolder.length">
               <center class="font-italic pa-8">
                 Cette playlist est vide :'(
               </center>
@@ -77,10 +67,12 @@
 
             <!-- playlist's audios -->
             <div v-else>
-              <ListItemAudio
+              <TreeviewAudio
                 :audioFolder="savedPlaylist.rootFolder"
                 :idPlaylist="idPlaylist"
+                :enableDnd="true"
                 :enableEdit="true"
+                :enablePlay="true"
               />
             </div>
           </v-col>
@@ -95,15 +87,18 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MixinUtils from "@/mixins/mixin-utils";
 import EventBus from "@/EventBus.js";
+import TreeviewAudio from "@/components/treeview-audio";
 
 export default {
   name: "DialogPlaylistAudio",
+
+  components: { TreeviewAudio },
 
   mixins: [MixinUtils],
 
   props: {
     idPlaylist: {
-      type: Number,
+      type: String,
       required: true,
     },
     dialog: {
@@ -114,7 +109,6 @@ export default {
 
   data: () => ({
     isPlaylistUpdated: false,
-    moveSelector: true,
     selectedTabIndex: null,
   }),
 
@@ -134,68 +128,54 @@ export default {
     ...mapGetters("playlist", ["getPlaylistById"]),
     ...mapState("audio", ["audioFolder"]),
     ...mapState("audioPlayer", ["audioCategories"]),
-    ...mapState("playlist", [
-      "playlistDefault",
-      "savedPlaylist",
-      "currentPath",
-      "currentIndex",
-    ]),
-
-    files() {
-      return this.savedPlaylist.rootFolder.files;
-    },
+    ...mapState("playlist", ["playlistDefault", "savedPlaylist"]),
   },
 
   mounted() {
-    EventBus.$on(EventBus.ADD_TO_PLAYLIST, async (file) =>
-      this.addToPlaylist(file)
+    EventBus.$on(EventBus.ADD_TO_PLAYLIST, async (file) => this.addFile(file));
+    EventBus.$on(EventBus.ADD_FOLDER, async (folderData) =>
+      this.addFolder(folderData)
     );
   },
 
   methods: {
     // Imports
     ...mapActions("playlist", ["fetchSavedPlaylist", "addAudioToPlaylist"]),
-    ...mapMutations("playlist", ["incrementPlaylistHelper"]),
 
     /**
      * Gets a specific folder from the audioFolder, given its title
      * @param {String} name Title of the folder to find
      */
     getAudioFolderByTitle(name) {
-      return this.audioFolder.folders.find((folder) => folder.name === name);
+      return this.audioFolder.find((folder) => folder.name === name).children;
     },
 
     /** */
-    async addToPlaylist(file) {
-      // If no index is set : error ?
-      if (this.currentIndex < 0) {
-        // Do something to show that an index should be selected
-        return;
-      }
+    async addFile(event) {
+      console.log(event);
+      const audio = this.getAudioById(event.from.id);
+      const path = "";
+      const index = 0;
 
-      /*
-      // We get the folder
-      const folder = this.getSubfolder(
-        this.playlistEdited.rootFolder,
-        this.currentPath
+      // await this.addAudioToPlaylist({
+      //   idPlaylist: this.idPlaylist,
+      //   audio: audio,
+      //   path: this.currentPath,
+      //   index: 0,
+      // });
+      this.isPlaylistUpdated = true;
+    },
+
+    /** */
+    async addFolder(folderData) {
+      console.log(
+        `add folder at path ${folderData.path}, index ${folderData.index}`
       );
-      // If found, we update the folder
-      if (folder) {
-        folder.files.splice(this.currentIndex, 0, file);
-        this.playlistEdited.total++;
-
-        // We update the selector if the user chose to
-        if (this.moveSelector) {
-          this.incrementPlaylistHelper();
-        }
-      }
-      */
-      await this.addAudioToPlaylist({
-        idPlaylist: this.idPlaylist,
-        audio: file,
-        path: this.currentPath,
-        index: this.currentIndex,
-      });
+      // await this.addAudioToPlaylist({
+      //   idPlaylist: this.idPlaylist,
+      //   audio: file,
+      //   path: '',
+      // });
       this.isPlaylistUpdated = true;
     },
 

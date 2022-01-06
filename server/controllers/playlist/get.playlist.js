@@ -6,7 +6,7 @@ import Playlist from "../../models/playlist.model.js";
  */
 export default async function getPlaylist(req, res) {
   try {
-    const playlist = await Playlist.get(parseInt(req.params.idPlaylist));
+    const playlist = await Playlist.get(req.params.idPlaylist);
     res.status(200).json(playlist);
   } catch (err) {
     res.status(404).json(err.message);

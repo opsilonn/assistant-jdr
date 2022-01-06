@@ -23,7 +23,7 @@
           :transition="false"
         >
           <v-list v-if="isPageLoaded">
-            <ListItemAudio
+            <TreeviewAudio
               :audioFolder="getAudioFolderByTitle(tab.title)"
               :enablePlay="true"
             />
@@ -104,12 +104,7 @@
               </center>
 
               <!-- No music warning -->
-              <div
-                v-if="
-                  !playlists[selectedPlaylistIndex].rootFolder.folders.length &&
-                  !playlists[selectedPlaylistIndex].rootFolder.files.length
-                "
-              >
+              <div v-if="!playlists[selectedPlaylistIndex].rootFolder.length">
                 <center class="font-italic pa-8">
                   Cette playlist est vide :'(
                 </center>
@@ -117,7 +112,7 @@
 
               <!-- playlist's audios -->
               <div v-else>
-                <ListItemAudio
+                <TreeviewAudio
                   :audioFolder="playlists[selectedPlaylistIndex].rootFolder"
                   :idPlaylist="playlists[selectedPlaylistIndex].id"
                   :enablePlay="true"
@@ -160,9 +155,10 @@ import { Howl, Howler } from "howler";
 import { mapActions, mapMutations, mapState } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
 import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
+import FooterAudio from "@/components/footer-audio";
 import ListItemAudio from "@/components/list-item-audio";
 import Loader from "@/components/loader";
-import FooterAudio from "@/components/footer-audio";
+import TreeviewAudio from "@/components/treeview-audio";
 
 export default {
   name: "PageAudio",
@@ -174,6 +170,7 @@ export default {
     FooterAudio,
     ListItemAudio,
     Loader,
+    TreeviewAudio,
   },
 
   data: () => ({
@@ -187,7 +184,7 @@ export default {
     selectedPlaylistIndex: -1,
 
     dialogPlaylist: false,
-    currentPlaylistId: -1,
+    currentPlaylistId: "",
     dialogPlaylistAudio: false,
   }),
 
@@ -242,12 +239,12 @@ export default {
      * @param {String} name Title of the folder to find
      */
     getAudioFolderByTitle(name) {
-      return this.audioFolder.folders.find((folder) => folder.name === name);
+      return this.audioFolder.find((folder) => folder.name === name).children;
     },
 
     /** */
     openDialogNew() {
-      this.currentPlaylistId = -1;
+      this.currentPlaylistId = "";
       this.dialogPlaylist = true;
     },
 

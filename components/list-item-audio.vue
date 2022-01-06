@@ -1,32 +1,28 @@
 <template>
   <div>
     <!-- content - folders -->
-    <v-list-item
-      v-for="(folder, i) in audioFolder.folders"
-      :key="`folder_${i}`"
-    >
-      <v-list-group sub-group>
-        <!-- title -->
-        <template v-slot:activator>
-          <v-list-item-title class="font-weight-black" v-text="folder.name" />
-        </template>
+    <template v-for="(folder, i) in audioFolder.folders">
+      <v-list-item :key="`folder_${i}`">
+        <v-list-group sub-group>
+          <!-- title -->
+          <template v-slot:activator>
+            <v-list-item-title class="font-weight-black" v-text="folder.name" />
+          </template>
 
-        <!-- recursive : call self -->
-        <ListItemAudio
-          :audioFolder="folder"
-          :enablePlay="enablePlay"
-          :enableEdit="enableEdit"
-          :enableAddition="enableAddition"
-          :idPlaylist="idPlaylist"
-          :pathPlaylist="
-            idPlaylist >= 0 ? `${pathPlaylist}/${folder.name}` : ''
-          "
-        />
-      </v-list-group>
-    </v-list-item>
-
-    <!-- -->
-    <playlist-selector v-if="enableEdit" :path="pathPlaylist" :index="0" />
+          <!-- recursive : call self -->
+          <ListItemAudio
+            :audioFolder="folder"
+            :enablePlay="enablePlay"
+            :enableEdit="enableEdit"
+            :enableAddition="enableAddition"
+            :idPlaylist="idPlaylist"
+            :pathPlaylist="
+              idPlaylist >= 0 ? `${pathPlaylist}/${folder.name}` : ''
+            "
+          />
+        </v-list-group>
+      </v-list-item>
+    </template>
 
     <!-- content - files -->
     <template v-for="(file, i) in files">
@@ -118,13 +114,6 @@
           </div>
         </v-list-item-action>
       </v-list-item>
-
-      <!-- -->
-      <playlist-selector
-        v-if="enableEdit"
-        :path="pathPlaylist"
-        :index="i + 1"
-      />
     </template>
   </div>
 </template>
@@ -134,13 +123,12 @@
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import EventBus from "@/EventBus.js";
 import ListItemAudio from "@/components/list-item-audio";
-import PlaylistSelector from "@/components/playlist-selector";
 import MixinRules from "@/mixins/mixin-rules";
 
 export default {
   name: "ListItemAudio",
 
-  components: { ListItemAudio, PlaylistSelector },
+  components: { ListItemAudio },
 
   mixins: [MixinRules],
 
@@ -179,6 +167,7 @@ export default {
 
   data: () => ({
     parameters: [],
+    newFolder: { name: "", isEditing: false, form: false },
   }),
 
   computed: {
@@ -191,23 +180,11 @@ export default {
         ? this.audioFolder.files
         : this.audioFolder.audios;
     },
-
-    currentPathPlaylist() {
-      return `${pathPlaylist}/${folder.name}`;
-    },
-
-    doesPlaylistContainsAudio() {
-      return (audio) =>
-        this.getPlaylistById(this.idPlaylist).audios.some(
-          (_) => _.path === audio.path
-        );
-    },
   },
 
   methods: {
     // Imports
     ...mapActions("playlist", ["updatePlaylistAudio"]),
-    ...mapMutations("playlist", ["resetPlaylistHelper"]),
     ...mapMutations("audioPlayer", ["setAudio"]),
 
     /** */

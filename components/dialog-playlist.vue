@@ -70,7 +70,7 @@ export default {
 
   props: {
     idPlaylist: {
-      type: Number,
+      type: String,
       required: false,
     },
     dialog: {
@@ -102,7 +102,7 @@ export default {
 
     /** */
     isNewPlaylist() {
-      return !this.idPlaylist || this.idPlaylist < 0;
+      return !this.idPlaylist || this.idPlaylist === "";
     },
   },
 

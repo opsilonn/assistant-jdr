@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { promisify } from "util";
+import { v4 as uuidv4 } from "uuid";
 
 const readFile = promisify(fs.readFile);
 const writeFile = promisify(fs.writeFile);
@@ -8,7 +9,7 @@ const pathFile = path.join(__dirname, "../data/playlists.json");
 const pathFileSave = path.join(__dirname, "../data/playlists_save.json");
 
 export default class Playlist {
-  /** @type {Number} */
+  /** @type {String} */
   id;
   /** @type {String} */
   name;
@@ -24,12 +25,12 @@ export default class Playlist {
   constructor(newObj) {
     this.id = newObj.id;
     this.name = newObj.name;
-    this.rootFolder = { folders: [], files: [] };
+    this.rootFolder = [];
     this.total = newObj.total || 0;
   }
 
   /**
-   * @param {Number} id
+   * @param {String} id
    * @returns {Promise<Playlist>}
    */
   static async get(id) {
@@ -48,7 +49,7 @@ export default class Playlist {
   }
 
   /**
-   * @param {Number} id
+   * @param {String} id
    * @returns {Promise<Playlist>}
    */
   static async getSaved(id) {
@@ -90,11 +91,7 @@ export default class Playlist {
 
     // Create new Playlist
     const playlist = new Playlist({
-      id:
-        Math.max.apply(
-          null,
-          playlists.map((_) => _.id)
-        ) + 1,
+      id: uuidv4(),
       name: playlistReceived.name,
     });
 
@@ -107,7 +104,7 @@ export default class Playlist {
 
   /**
    *
-   * @param {Number} id
+   * @param {String} id
    * @param {Playlist} playlistReceived
    * @returns {Promise<Playlist>}
    */
@@ -136,7 +133,7 @@ export default class Playlist {
   }
 
   /**
-   * @param {Number} id
+   * @param {String} id
    */
   static async delete(id) {
     // Get all the playlists
@@ -159,7 +156,7 @@ export default class Playlist {
 
   /**
    *
-   * @param {Number} idPlaylist
+   * @param {String} idPlaylist
    * @param {Audio} audio
    * @param {String} path
    * @param {Number} index
@@ -203,11 +200,7 @@ export default class Playlist {
     }
 
     const newAudio = {
-      id:
-        Math.max.apply(
-          null,
-          folder.files.map((_) => _.id)
-        ) + 1,
+      id: uuidv4(),
       name: audio.name,
       surname: "",
       path: audio.path,
@@ -222,8 +215,8 @@ export default class Playlist {
 
   /**
    *
-   * @param {Number} idPlaylist
-   * @param {Number} idAudio
+   * @param {String} idPlaylist
+   * @param {String} idAudio
    * @param {Audio} audioReceived
    * @param {String} path
    * @returns {Promise<Playlist>}
@@ -233,15 +226,17 @@ export default class Playlist {
     let playlists = await this.getAll(pathFileSave);
 
     // We get the wanted playlist
-    const playlist = playlists.find((_) => _.id === idPlaylist);
+    let playlist = playlists.find((_) => _.id === idPlaylist);
 
     // If not found : We get the source one, from the "actual" database
     if (!playlist) {
+      console.log('on récupère la "véritable" playlist');
       // Get all the actual playlists
       playlists = await this.getAll();
 
       // We get the source playlist
       playlist = playlists.find((_) => _.id === idPlaylist);
+      console.log("playlist", playlist);
       if (!playlist) {
         throw new Error("Playlist not found !");
       }
@@ -254,9 +249,11 @@ export default class Playlist {
     } catch (err) {
       throw new Error("Invalid path !");
     }
+    console.log("folder", folder);
 
     // We update the file
     const file = folder.files.find((f) => f.id === idAudio);
+    console.log("file", file);
     file.surname = audioReceived.surname || "";
 
     writeFile(pathFileSave, JSON.stringify(playlists, null, 2), "utf8");
@@ -264,8 +261,8 @@ export default class Playlist {
   }
 
   /**
-   * @param {Number} idPlaylist
-   * @param {Number} idAudio
+   * @param {String} idPlaylist
+   * @param {String} idAudio
    * @param {String} path
    */
   static async deleteAudio(idPlaylist, idAudio, path) {
@@ -306,7 +303,7 @@ export default class Playlist {
 
   /**
    *
-   * @param {Number} idPlaylist
+   * @param {String} idPlaylist
    * @returns {Promise<Playlist>}
    */
   static async saveChanges(idPlaylist) {

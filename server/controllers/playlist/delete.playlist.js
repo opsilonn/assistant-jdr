@@ -6,7 +6,7 @@ import Playlist from "../../models/playlist.model.js";
  */
 export default async function deletePlaylist(req, res) {
   try {
-    await Playlist.delete(parseInt(req.params.idPlaylist));
+    await Playlist.delete(req.params.idPlaylist);
     res.status(204).json(true);
   } catch (err) {
     console.log(err);

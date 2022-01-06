@@ -6,9 +6,7 @@ import Playlist from "../../models/playlist.model.js";
  */
 export default async function savePlaylistChanges(req, res) {
   try {
-    const playlist = await Playlist.saveChanges(
-      parseInt(req.params.idPlaylist)
-    );
+    const playlist = await Playlist.saveChanges(req.params.idPlaylist);
     res.status(200).json(playlist);
   } catch (err) {
     res.status(404).json(err.message);

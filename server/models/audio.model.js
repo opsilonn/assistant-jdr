@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 
 const audioFolder = "./static/audio";
 
@@ -32,27 +33,32 @@ export default class Audio {
    * @returns An object containing all its content
    */
   static readFolder(path) {
-    const folder = {
-      name: path.substring(path.lastIndexOf("/") + 1, path.length),
-      folders: [],
-      files: [],
-    };
+    const folder = [];
 
     try {
       const files = fs.readdirSync(path);
 
-      // files object contains all files names
-      files.forEach((file) => {
-        // Add accordingly to file or folder
-        if (file.includes(".")) {
-          folder.files.push({
-            name: file.substring(0, file.lastIndexOf(".")),
-            path: `${path}/${file}`.replace("./static", ""),
-          });
-        } else {
-          folder.folders.push(this.readFolder(path + "/" + file));
-        }
-      });
+      // We first add the folders
+      files
+        .filter((f) => !f.includes("."))
+        .forEach((f) =>
+          folder.push({
+            id: uuidv4(),
+            name: f,
+            children: this.readFolder(path + "/" + f),
+          })
+        );
+
+      // We then add the files
+      files
+        .filter((f) => f.includes("."))
+        .forEach((f) =>
+          folder.push({
+            id: uuidv4(),
+            name: f.substring(0, f.lastIndexOf(".")),
+            path: `${path}/${f}`.replace("./static", ""),
+          })
+        );
     } catch (err) {
       console.log(err);
     }

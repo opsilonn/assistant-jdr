@@ -1,9 +1,6 @@
 const state = () => ({
   playlists: [],
   savedPlaylist: { id: -1, name: "", rootFolder: { folders: [], files: [] } },
-
-  currentPath: "",
-  currentIndex: -1,
 });
 
 const getters = {
@@ -12,20 +9,6 @@ const getters = {
 };
 
 const mutations = {
-  resetPlaylistHelper(state) {
-    state.currentPath = "";
-    state.currentIndex = -1;
-  },
-
-  setPlaylistHelper(state, { path, index }) {
-    state.currentPath = path;
-    state.currentIndex = index;
-  },
-
-  incrementPlaylistHelper(state) {
-    state.currentIndex++;
-  },
-
   /**
    *
    * @param {*} state
