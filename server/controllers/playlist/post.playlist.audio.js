@@ -9,7 +9,7 @@ export default async function postPlaylistAudio(req, res) {
     const playlist = await Playlist.addAudio(
       req.params.idPlaylist,
       req.body.audio,
-      req.body.path,
+      req.body.idFolder,
       req.body.index
     );
     res.status(200).json(playlist);

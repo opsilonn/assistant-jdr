@@ -1,5 +1,6 @@
 // Imports
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
+const INDEX = 2;
 
 const state = () => ({
   audioCategories: [
@@ -42,9 +43,7 @@ const mutations = {
   /** */
   setAudio(state, audio) {
     // We get the category's index
-    const category = state.audioCategories.find(
-      (tab) => audio.path.split("/")[2] === tab.title
-    );
+    const category = state.audioCategories.find((tab) => audio.path.split("/")[INDEX].includes(tab.title));
 
     // If not found : ERROR
     if (!category) {
@@ -82,9 +81,7 @@ const mutations = {
       category.play = false;
       category.howl = null;
       category.error = true;
-      alert(
-        `Piste audio non trouvée\n - nom : ${audio.name}\n - chemin : ${audio.path}`
-      );
+      alert(`Piste audio non trouvée\n - nom : ${audio.name}\n - chemin : ${audio.path}`);
     });
   },
 

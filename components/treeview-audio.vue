@@ -1,5 +1,5 @@
 <template>
-  <v-treeview :items="audioFolder" hoverable open-on-click shaped return-object>
+  <v-treeview :items="audioFolder" hoverable open-on-click shaped return-object dense>
     <!-- Prepend icon -->
     <template v-slot:prepend="{ item, open }">
       <div @click="onClick(item)">
@@ -9,11 +9,11 @@
               ? open
                 ? 'mdi-folder-open'
                 : 'mdi-folder'
-              : item.path.split('/')[2] === 'Ambiance'
+              : item.path.split('/')[2].includes('Ambiance')
               ? 'mdi-city-variant-outline'
-              : item.path.split('/')[2] === 'Musique'
+              : item.path.split('/')[2].includes('Musique')
               ? 'mdi-music-note'
-              : item.path.split('/')[2] === 'SFX'
+              : item.path.split('/')[2].includes('SFX')
               ? 'mdi-ear-hearing'
               : 'mdi-help'
           "
@@ -24,7 +24,11 @@
     <!-- Label -->
     <template v-slot:label="{ item }">
       <draggable
-        :class="enableDnd ? (enableEdit ? 'playlist' : 'database') : ''"
+        :class="{
+          playlist: enableDnd && enableEdit,
+          database: enableDnd && !enableEdit,
+          folder: !!item.children,
+        }"
         :list="[]"
         :group="enableDnd ? 'node' : ''"
         :id="item.id"
@@ -32,12 +36,7 @@
       >
         <div class="pa-4" @click="onClick(item)">
           <!-- If editing -->
-          <v-form
-            v-if="!!item.isEditing"
-            :ref="`form_playlist_audio_${item.id}`"
-            v-model="item.form"
-            @submit.prevent
-          >
+          <v-form v-if="!!item.isEditing" :ref="`form_playlist_audio_${item.id}`" v-model="item.form" @submit.prevent>
             <v-text-field
               v-model="item.surnameEdit"
               :rules="[rules.max50, rules.ascii]"
@@ -48,10 +47,7 @@
             >
               <template v-slot:append>
                 <v-fade-transition leave-absolute>
-                  <v-icon
-                    v-text="'mdi-check'"
-                    @click.stop="editAudioFromPlaylist(item)"
-                  />
+                  <v-icon v-text="'mdi-check'" @click.stop="editAudioFromPlaylist(item)" />
                 </v-fade-transition>
               </template>
             </v-text-field>
@@ -59,46 +55,39 @@
 
           <div v-else>
             <span v-if="item.surname">
-              {{ item.surname }} <br />
+              {{ item.surname }}<br />
               <span class="font-italic">{{ item.name }}</span>
             </span>
-            <span v-else>
-              {{ item.name }}
-            </span>
+            <span v-else> {{ item.name }} </span>
           </div>
         </div>
       </draggable>
     </template>
 
     <!-- Append icon -->
-    <template v-slot:append="{ item, open }">
-      <div @click="onClick(item)">
-        <!-- action : Edit or remove -->
-        <div v-if="enableEdit">
-          <v-icon
-            v-if="item.isEditing"
-            class="zoom"
-            color="grey lighten-1"
-            v-text="'mdi-cancel'"
-            @click.stop="cancelEdit(item)"
-          />
+    <template v-if="enableEdit" v-slot:append="{ item, open }" @click="onClick(item)">
+      <!-- Is editing the name -->
+      <v-icon v-if="item.isEditing" class="zoom" color="grey lighten-1" v-text="'mdi-cancel'" @click.stop="cancelEdit(item)" />
 
-          <v-icon
-            v-else
-            class="zoom"
-            color="grey lighten-1"
-            v-text="'mdi-pencil'"
-            @click.stop="beginEdit(item)"
-          />
+      <!-- other actions -->
+      <div v-else>
+        <!-- add subfolder (only for folders) -->
+        <v-icon
+          v-if="!!item.children"
+          class="zoom"
+          color="grey lighten-1"
+          v-text="'mdi-folder-multiple-plus'"
+          @click.stop="
+            open = true;
+            cancelEdit(item);
+          "
+        />
 
-          <!-- action : Remove from playlist -->
-          <v-icon
-            v-if="enableEdit"
-            class="zoom"
-            color="grey lighten-1"
-            v-text="'mdi-delete'"
-          />
-        </div>
+        <!-- Rename item -->
+        <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-pencil'" @click.stop="beginEdit(item)" />
+
+        <!-- Remove item -->
+        <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-delete'" @click.stop="deleteItemFromPlaylist(item)" />
       </div>
     </template>
   </v-treeview>
@@ -114,9 +103,7 @@ import MixinRules from "@/mixins/mixin-rules";
 export default {
   name: "TreeviewAudio",
 
-  components: {
-    draggable,
-  },
+  components: { draggable },
 
   mixins: [MixinRules],
 
@@ -157,12 +144,12 @@ export default {
 
   methods: {
     // Imports
-    ...mapActions("playlist", ["updatePlaylistAudio"]),
+    ...mapActions("playlist", ["updatePlaylistAudio", "deleteFromPlaylist"]),
     ...mapMutations("audioPlayer", ["setAudio"]),
 
     /** */
     onClick(file) {
-      if (!!file.path && this.enablePlay && !file.isEditing) {
+      if (!file.children && this.enablePlay && !file.isEditing) {
         this.setAudio(file);
       }
     },
@@ -214,6 +201,14 @@ export default {
       EventBus.$emit(EventBus.ADD_TO_PLAYLIST, file);
     },
 
+    async deleteItemFromPlaylist(item) {
+      const data = {
+        idPlaylist: this.idPlaylist,
+        idItem: item.id,
+      };
+      const res = await this.deleteFromPlaylist(data);
+    },
+
     /** */
     endDnD(event) {
       const fromIsDatabase = event.from.className.includes("database");
@@ -226,10 +221,7 @@ export default {
         return;
       }
 
-      const eventName =
-        fromIsDatabase && toIsPlaylist
-          ? EventBus.ADD_TO_PLAYLIST
-          : EventBus.MOVE_WITHIN_PLAYLIST;
+      const eventName = fromIsDatabase && toIsPlaylist ? EventBus.ADD_TO_PLAYLIST : EventBus.MOVE_WITHIN_PLAYLIST;
       EventBus.$emit(eventName, event);
     },
   },

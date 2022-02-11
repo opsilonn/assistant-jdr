@@ -1,1 +1,27 @@
-[]
+[
+  {
+    "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6f",
+    "name": "Exemple complet",
+    "total": 2,
+    "rootFolder": [
+      {
+        "name": "sous-dossier",
+        "id": "9b1debf3-3b7d-4bad-9bdd-2b0d7b3dcb6g",
+        "children": [
+          {
+            "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6g",
+            "name": "Formidable Oak",
+            "surname": "sous-fichier",
+            "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+          }
+        ]
+      },
+      {
+        "id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6h",
+        "name": "Formidable Oak",
+        "surname": "fichier n° 1",
+        "path": "/audio/Musique/horreur/Pikmin 3 - Formidable Oak.mp3"
+      }
+    ]
+  }
+]

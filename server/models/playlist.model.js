@@ -162,7 +162,7 @@ export default class Playlist {
    * @param {Number} index
    * @returns {Promise<Playlist>}
    */
-  static async addAudio(idPlaylist, audio, path, index) {
+  static async addAudio(idPlaylist, audio, idFolder, index) {
     // Get all the playlists (of saves !)
     let playlistsSaved = await this.getAll(pathFileSave);
 
@@ -182,23 +182,7 @@ export default class Playlist {
       playlistsSaved.push(playlist);
     }
 
-    // We fetch the folder in the arborescence
-    let folder = {};
-    try {
-      folder = this.getSubfolder(playlist.rootFolder, path);
-    } catch (err) {
-      throw new Error("Invalid path !");
-    }
-
-    /*
-    if (folder.files.some((file) => file.path === audio.path)) {
-      throw new Error("Duplicate audio in folder !");
-    }
-    */
-    if (index < 0 || folder.files.length < index) {
-      throw new Error("Incorrect index !");
-    }
-
+    // We initialize the new Audio
     const newAudio = {
       id: uuidv4(),
       name: audio.name,
@@ -207,7 +191,37 @@ export default class Playlist {
     };
     playlist.total += 1;
 
-    folder.files.splice(index, 0, newAudio);
+    // If no id was given : add to the root of the playlist
+    if (idFolder === "") {
+      // Check for valid index
+      if (index < 0 || playlist.rootFolder.length < index) {
+        throw new Error("Incorrect index !");
+      }
+
+      // Add to playlist
+      playlist.rootFolder.splice(index, 0, newAudio);
+    } else {
+      // We fetch the folder in the arborescence
+      let folder = {};
+      try {
+        folder = this.getFolderByItemId(idFolder, playlist.rootFolder);
+      } catch (err) {
+        throw new Error("Invalid folder ID !");
+      }
+
+      if (!folder) {
+        throw new Error("Incorrect folder ID !");
+      }
+
+      // Check for valid index
+      if (index < 0 || folder.children.length < index) {
+        throw new Error("Incorrect index !");
+      }
+
+      // Add to playlist
+      folder.children.splice(index, 0, newAudio);
+    }
+
     writeFile(pathFileSave, JSON.stringify(playlistsSaved, null, 2), "utf8");
 
     return playlist;
@@ -230,13 +244,11 @@ export default class Playlist {
 
     // If not found : We get the source one, from the "actual" database
     if (!playlist) {
-      console.log('on récupère la "véritable" playlist');
       // Get all the actual playlists
       playlists = await this.getAll();
 
       // We get the source playlist
       playlist = playlists.find((_) => _.id === idPlaylist);
-      console.log("playlist", playlist);
       if (!playlist) {
         throw new Error("Playlist not found !");
       }
@@ -245,15 +257,13 @@ export default class Playlist {
     // We fetch the folder in the arborescence
     let folder = {};
     try {
-      folder = this.getSubfolder(playlist.rootFolder, path);
+      folder = this.getSubfolderByPath(playlist.rootFolder, path);
     } catch (err) {
       throw new Error("Invalid path !");
     }
-    console.log("folder", folder);
 
     // We update the file
     const file = folder.files.find((f) => f.id === idAudio);
-    console.log("file", file);
     file.surname = audioReceived.surname || "";
 
     writeFile(pathFileSave, JSON.stringify(playlists, null, 2), "utf8");
@@ -262,10 +272,9 @@ export default class Playlist {
 
   /**
    * @param {String} idPlaylist
-   * @param {String} idAudio
-   * @param {String} path
+   * @param {String} idItem
    */
-  static async deleteAudio(idPlaylist, idAudio, path) {
+  static async deleteItem(idPlaylist, idItem) {
     // Get all the playlists
     let playlists = await this.getAll(pathFileSave);
 
@@ -287,18 +296,26 @@ export default class Playlist {
     // We fetch the folder in the arborescence
     let folder = {};
     try {
-      folder = this.getSubfolder(playlist.rootFolder, path);
+      folder = this.getParentFolderByItemId(idItem, playlist.rootFolder);
     } catch (err) {
-      throw new Error("Invalid path !");
+      throw new Error("Invalid ID !");
+    }
+
+    if (!!folder && !!folder.id) {
+      // folder found (and not the root folder)
+      const indexFile = folder.children.findIndex((file) => file.id === idItem);
+      folder.children.splice(indexFile, 1);
+    } else {
+      // No folder found : remove from root
+      const indexFile = playlist.rootFolder.findIndex((file) => file.id === idItem);
+      playlist.rootFolder.splice(indexFile, 1);
     }
 
     // Remove file from Playlist
-    const indexFile = folder.files.findIndex((file) => file.id === idAudio);
-    folder.files.splice(indexFile, 1);
-    playlist.total -= 1;
+    playlist.total--;
     writeFile(pathFileSave, JSON.stringify(playlists, null, 2), "utf8");
 
-    return true;
+    return playlist;
   }
 
   /**
@@ -306,34 +323,62 @@ export default class Playlist {
    * @param {String} idPlaylist
    * @returns {Promise<Playlist>}
    */
-  static async saveChanges(idPlaylist) {
-    // Get all the playlists
-    let playlistsSaved = await this.getAll(pathFileSave);
-
+  static async savePlaylist(idPlaylist) {
     // We get the wanted playlist
-    const playlistSaved = playlists.find((_) => _.id === idPlaylist);
+    const playlistToSave = (await this.getAll(pathFileSave)).find((_) => _.id === idPlaylist);
 
     // If not found : Error
-    if (!playlistSaved) {
+    if (!playlistToSave) {
+      throw new Error("Playlist not found !");
+    }
+
+    // Get all the playlists
+    let playlists = await this.getAll();
+    // We get the index of the playlist to override
+    const index = playlists.findIndex((_) => _.id === idPlaylist);
+
+    // If not found : Error
+    if (0 < index) {
+      throw new Error("Playlist not found !");
+    }
+
+    playlists[index] = playlistToSave;
+
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
+    return playlistToSave;
+  }
+
+  /**
+   *
+   * @param {String} idPlaylist
+   * @returns {Promise<Playlist>}
+   */
+  static async resetPlaylist(idPlaylist) {
+    // We get the wanted playlist
+    const playlistToSave = (await this.getAll()).find((_) => _.id === idPlaylist);
+
+    // If not found : Error
+    if (!playlistToSave) {
       throw new Error("Playlist not found !");
     }
 
     // Get all the playlists
     let playlists = await this.getAll(pathFileSave);
-
-    // We get the wanted playlist
-    const playlist = playlists.find((_) => _.id === idPlaylist);
+    // We get the index of the playlist to override
+    const index = playlists.findIndex((_) => _.id === idPlaylist);
 
     // If not found : Error
-    if (!playlist) {
+    if (0 < index) {
       throw new Error("Playlist not found !");
     }
 
-    playlist = playlistSaved;
+    playlists[index] = playlistToSave;
 
     writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
-    return playlist;
+    return playlistToSave;
   }
+
+  // UTILS
 
   /**
    *
@@ -341,7 +386,7 @@ export default class Playlist {
    * @param {*} path
    * @returns
    */
-  static getSubfolder(folder, path) {
+  static getSubfolderByPath(folder, path) {
     // If we delve deeper in the tree
     if (path[0] === "/") {
       // We remove the first "/"
@@ -356,10 +401,56 @@ export default class Playlist {
         throw new Error("Invalid path !");
       }
 
-      return this.getSubfolder(nextFolder, nextPath);
+      return this.getSubfolderByPath(nextFolder, nextPath);
     }
 
     // Return current folder
     return folder;
+  }
+
+  /**
+   * FIXME Returns a folder given its ID, or one of its children ID
+   * @param {*} id
+   * @param {*} folder
+   * @returns
+   */
+  static getFolderByItemId(id, folder) {
+    for (let i = 0; i < folder.length; i++) {
+      const item = folder[i];
+
+      if ((!!item.children && item.id === id) || !!(item.children || []).find((el) => !el.children && el.id === id)) {
+        return item;
+      }
+
+      if (!!item.children) {
+        const returnedItem = this.getFolderByItemId(id, item.children);
+        if (!!returnedItem) {
+          return returnedItem;
+        }
+      }
+    }
+  }
+
+  /**
+   * FIXME Returns a folder given its ID, or one of its children ID
+   * @param {*} id
+   * @param {*} folder
+   * @returns
+   */
+  static getParentFolderByItemId(id, folder) {
+    for (let i = 0; i < folder.length; i++) {
+      const item = folder[i];
+
+      if (!!item.children) {
+        if (!!item.children.find((el) => el.id === id)) {
+          return item;
+        }
+
+        const returnedItem = this.getFolderByItemId(id, item.children);
+        if (!!returnedItem) {
+          return returnedItem;
+        }
+      }
+    }
   }
 }

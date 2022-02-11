@@ -20,6 +20,7 @@ const mutations = {
       state.playlists.push(playlist);
     } else {
       state.playlists[index] = playlist;
+      state.playlists = [...state.playlists];
     }
   },
 
@@ -35,6 +36,11 @@ const mutations = {
     }
   },
 
+  /**
+   *
+   * @param {*} state
+   * @param {*} savedPlaylist
+   */
   setSavedPlaylist(state, savedPlaylist) {
     state.savedPlaylist = savedPlaylist;
   },
@@ -75,6 +81,13 @@ const actions = {
     return result;
   },
 
+  /** */
+  async savePlaylist({ commit }, { idPlaylist }) {
+    const url = `/api/playlist/${idPlaylist}/save`;
+    this.$axios.$put(url).then((playlist) => commit("addPlaylist", playlist));
+    return true;
+  },
+
   // SAVED
 
   /** */
@@ -84,29 +97,21 @@ const actions = {
   },
 
   /** */
-  async addAudioToPlaylist(
-    { commit },
-    { idPlaylist, audio = { name, path }, path, index }
-  ) {
+  async addAudioToPlaylist({ commit }, { idPlaylist, audio = { name, path }, idFolder, index }) {
     const url = `/api/playlist/${idPlaylist}/audio`;
     const params = {
       audio: {
         name: audio.name,
         path: audio.path,
       },
-      path: path,
+      idFolder: idFolder,
       index: index,
     };
-    this.$axios
-      .$post(url, params)
-      .then((playlist) => commit("setSavedPlaylist", playlist));
+    this.$axios.$post(url, params).then((playlist) => commit("setSavedPlaylist", playlist));
   },
 
   /** */
-  async updatePlaylistAudio(
-    { commit },
-    { idPlaylist, audio = { id, name, surname }, path }
-  ) {
+  async updatePlaylistAudio({ commit }, { idPlaylist, audio = { id, name, surname }, path }) {
     const url = `/api/playlist/${idPlaylist}/audio/${audio.id}`;
     const params = {
       id: audio.id,
@@ -121,6 +126,18 @@ const actions = {
     };
     const playlist = await this.$axios.$put(url, params);
     commit("addPlaylist", playlist);
+  },
+
+  /** */
+  async deleteFromPlaylist({ commit }, { idPlaylist, idItem }) {
+    const url = `/api/playlist/${idPlaylist}/audio/${idItem}`;
+    this.$axios.$delete(url).then((playlist) => commit("setSavedPlaylist", playlist));
+  },
+
+  /** */
+  async resetPlaylist({ commit }, { idPlaylist }) {
+    const url = `/api/playlist/${idPlaylist}/reset`;
+    this.$axios.$put(url).then((playlist) => commit("setSavedPlaylist", playlist));
   },
 };
 

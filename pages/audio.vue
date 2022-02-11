@@ -17,16 +17,9 @@
       <!-- Tab view -->
       <v-tabs-items v-model="selectedTabIndex">
         <!-- Dynamically create tab view for audio categories -->
-        <v-tab-item
-          v-for="(tab, i) in audioCategories"
-          :key="`tab_item_category${i}`"
-          :transition="false"
-        >
+        <v-tab-item v-for="(tab, i) in audioCategories" :key="`tab_item_category${i}`" :transition="false">
           <v-list v-if="isPageLoaded">
-            <TreeviewAudio
-              :audioFolder="getAudioFolderByTitle(tab.title)"
-              :enablePlay="true"
-            />
+            <TreeviewAudio :audioFolder="getAudioFolderByTitle(tab.title)" :enablePlay="true" />
           </v-list>
         </v-tab-item>
 
@@ -37,11 +30,7 @@
             <v-col cols="4">
               <!-- Create new playlist -->
               <center>
-                <v-btn
-                  class="ma-4 zoom-sm primary"
-                  rounded
-                  @click="openDialogNew()"
-                >
+                <v-btn class="ma-4 zoom-sm primary" rounded @click="openDialogNew()">
                   <v-icon left> mdi-folder-plus </v-icon>
                   Nouvelle Playlist
                 </v-btn>
@@ -49,35 +38,19 @@
 
               <!-- then, we iterate through playlists -->
               <v-list shaped two-line>
-                <v-list-item-group
-                  v-model="selectedPlaylistIndex"
-                  color="primary"
-                >
-                  <v-list-item
-                    v-for="(playlist, i) in playlists"
-                    :key="`playlist_${playlist.id}`"
-                  >
+                <v-list-item-group v-model="selectedPlaylistIndex" color="primary">
+                  <v-list-item v-for="playlist in playlists" :key="`playlist_${playlist.id}`">
                     <v-list-item-icon>
                       <v-icon v-text="'mdi-music-note'" />
                     </v-list-item-icon>
 
                     <v-list-item-content>
                       <v-list-item-title v-text="playlist.name" />
-                      <v-list-item-subtitle
-                        v-text="
-                          `piste${playlist.total ? 's' : ''} : ${
-                            playlist.total
-                          }`
-                        "
-                      />
+                      <v-list-item-subtitle v-text="`piste${playlist.total ? 's' : ''} : ${playlist.total}`" />
                     </v-list-item-content>
 
                     <v-list-item-action>
-                      <v-icon
-                        color="grey lighten-1"
-                        v-text="'mdi-dots-vertical'"
-                        @click="openDialogEdit(playlist.id)"
-                      />
+                      <v-icon color="grey lighten-1" v-text="'mdi-dots-vertical'" @click="openDialogEdit(playlist.id)" />
                     </v-list-item-action>
                   </v-list-item>
                 </v-list-item-group>
@@ -91,23 +64,15 @@
             <v-col cols="8" v-if="selectedPlaylistIndex >= 0">
               <!-- Add audios -->
               <center>
-                <v-btn
-                  class="ma-4 zoom-sm primary"
-                  rounded
-                  @click="
-                    openDialogPlaylist(playlists[selectedPlaylistIndex].id)
-                  "
-                >
-                  <v-icon left> mdi-folder-plus </v-icon>
-                  Ajouter musique
+                <v-btn class="ma-4 zoom-sm primary" rounded @click="openDialogPlaylist(playlists[selectedPlaylistIndex].id)">
+                  <v-icon left v-text="'mdi-folder-plus'" />
+                  Gérer musique
                 </v-btn>
               </center>
 
               <!-- No music warning -->
               <div v-if="!playlists[selectedPlaylistIndex].rootFolder.length">
-                <center class="font-italic pa-8">
-                  Cette playlist est vide :'(
-                </center>
+                <center class="font-italic pa-8">Cette playlist est vide :'(</center>
               </div>
 
               <!-- playlist's audios -->
@@ -130,28 +95,16 @@
       <FooterAudio />
 
       <!-- Dialog to create, update or delete a playlist -->
-      <DialogPlaylist
-        @close-dialog="dialogPlaylist = false"
-        :dialog="dialogPlaylist"
-        :idPlaylist="currentPlaylistId"
-        @playlist-new="newPlaylist"
-        @playlist-edit="editPlaylist"
-        @playlist-delete="deletePlaylist"
-      />
+      <DialogPlaylist @close-dialog="dialogPlaylist = false" :dialog="dialogPlaylist" :idPlaylist="currentPlaylistId" />
 
       <!-- Dialog to add or remove audios from a playlist -->
-      <DialogPlaylistAudio
-        @close-dialog="dialogPlaylistAudio = false"
-        :dialog="dialogPlaylistAudio"
-        :idPlaylist="currentPlaylistId"
-      />
+      <DialogPlaylistAudio @close-dialog="closeDialogPlaylist()" :dialog="dialogPlaylistAudio" :idPlaylist="currentPlaylistId" />
     </div>
   </div>
 </template>
 
 <script>
 // Imports
-import { Howl, Howler } from "howler";
 import { mapActions, mapMutations, mapState } from "vuex";
 import DialogPlaylist from "@/components/dialog-playlist";
 import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
@@ -201,7 +154,7 @@ export default {
   },
 
   watch: {
-    /** */
+    /** Allows to select the latest playlist if one is added, or deselect if one is deleted */
     playlistIds(newValue, oldValue) {
       if (oldValue.length < newValue.length) {
         this.selectedPlaylistIndex = this.playlists.length - 1;
@@ -261,16 +214,15 @@ export default {
     },
 
     /** */
+    closeDialogPlaylist() {
+      this.dialogPlaylistAudio = false;
+    },
+
+    /** */
     async newPlaylist(newPlaylist) {
       const x = await this.createPlaylist(newPlaylist);
       this.dialogPlaylist = false;
     },
-
-    /** */
-    editPlaylist(newPlaylist) {},
-
-    /** */
-    deletePlaylist() {},
   },
 
   /** Whenever the page is exited : remove all audio tracks */

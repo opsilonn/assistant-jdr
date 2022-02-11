@@ -13,54 +13,28 @@ export default {
   methods: {
     /**
      *
-     * @param {*} folder
-     * @param {*} path
-     * @returns
-     */
-    getSubfolder(folder, path) {
-      // If we delve deeper in the tree
-      if (path[0] === "/") {
-        // We remove the first "/"
-        path = path.substring(1, path.length);
-
-        const index = path.includes("/") ? path.indexOf("/") : path.length;
-        const currentPath = path.substring(0, index);
-        const nextPath = path.substring(index, path.length);
-        const nextFolder = folder.folders.find((f) => f.name === currentPath);
-
-        if (!nextFolder) {
-          throw new Error("Invalid path !");
-        }
-
-        return this.getSubfolder(nextFolder, nextPath);
-      }
-
-      // Return current folder
-      return folder;
-    },
-
-    /**
-     *
      * @param {*} id
+     * @param {*} folder
      * @returns
      */
-    getAudioById(id) {
-      for (let i = 0; i < this.audioFolder.length; i++) {
-        const folder = this.audioFolder[i].children;
-        const audio = this.getFile(id, folder);
-        if (!!audio) {
-          return audio;
+    getAudioById(id, folder) {
+      const arr = Array.isArray(folder) ? folder : [folder];
+      for (let i = 0; i < arr.length; i++) {
+        const fold = !!arr[i].children ? arr[i].children : arr;
+        const item = this.getItemInFolderById(id, fold);
+        if (!!item) {
+          return item;
         }
       }
     },
 
     /**
      *
-     * @param {*} folder
      * @param {*} id
+     * @param {*} folder
      * @returns
      */
-    getFile(id, folder) {
+    getItemInFolderById(id, folder) {
       for (let i = 0; i < folder.length; i++) {
         const item = folder[i];
 
@@ -69,7 +43,33 @@ export default {
           return item;
         } else if (!!item.children) {
           // Current has children : we check if any matches
-          const returnedItem = this.getFile(id, item.children);
+          const returnedItem = this.getItemInFolderById(id, item.children);
+          if (!!returnedItem) {
+            return returnedItem;
+          }
+        }
+      }
+    },
+
+    /**
+     * FIXME Returns a folder given its ID, or one of its children ID
+     * @param {*} id
+     * @param {*} folder
+     * @returns
+     */
+    getSubfolderByItemId(id, folder) {
+      for (let i = 0; i < folder.length; i++) {
+        const item = folder[i];
+
+        if (
+          (!!item.children && item.id === id) ||
+          !!(item.children || []).find((el) => !el.children && el.id === id)
+        ) {
+          return item;
+        }
+
+        if (!!item.children) {
+          const returnedItem = this.getSubfolderByItemId(id, item.children);
           if (!!returnedItem) {
             return returnedItem;
           }

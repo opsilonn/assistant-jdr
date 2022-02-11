@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: "MixinCss"
+  name: "MixinCss",
 };
 </script>
 
