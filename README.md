@@ -9,6 +9,18 @@ Actuellement, il contient :
 
 Node.js est nécessaire pour faire fonctionner le projet, et peut être [téléchargé ici](https://nodejs.org/en)
 
+Il faut **impérativement** créer le fichier /server/local.server.config.js avec le contenu suivant, (qui peut être trouvé dans le [fichier suivant](https://github.com/opsilonn/jdr-tools/blob/main/server/local.server.config.js)):
+
+```js
+module.exports = {
+    SESSION_SECRET: "randomly generated string",
+    POSTGRES_USER: "postgres",
+    POSTGRES_HOST: "localhost",
+    POSTGRES_DB: "example_app",
+    POSTGRES_PASSWORD: "123motdepassesecu",
+}
+```
+
 ```bash
 # Installer les dépendances
 $ npm install
