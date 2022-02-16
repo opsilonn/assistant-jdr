@@ -17,7 +17,7 @@
       <!-- Tab view -->
       <v-tabs-items v-model="selectedTabIndex">
         <!-- Dynamically create tab view for audio categories -->
-        <v-tab-item v-for="(tab, i) in audioCategories" :key="`tab_item_category${i}`" :transition="false">
+        <v-tab-item v-for="(tab, i) in audioCategories" :key="`tab_item_category${i}`" :transition="false" class="scroll">
           <v-list v-if="isPageLoaded">
             <TreeviewAudio :audioFolder="getAudioFolderByTitle(tab.title)" :enablePlay="true" />
           </v-list>
@@ -61,7 +61,7 @@
             <v-divider vertical />
 
             <!-- right - current playlist -->
-            <v-col cols="8" v-if="selectedPlaylistIndex >= 0">
+            <v-col cols="8" v-if="selectedPlaylistIndex >= 0" class="scroll">
               <!-- Add audios -->
               <center>
                 <v-btn class="ma-4 zoom-sm primary" rounded @click="openDialogPlaylist(playlists[selectedPlaylistIndex].id)">
@@ -87,9 +87,6 @@
           </v-row>
         </v-tab-item>
       </v-tabs-items>
-
-      <!-- TO DO : remove this "br" tag and find a proper way to ensure that the footer never covers any data -->
-      <br v-for="n in 10" :key="n" />
 
       <!-- Dashboard (fixed to the bottom) -->
       <FooterAudio />
@@ -240,11 +237,16 @@ export default {
 };
 </script>
 
-<style>
-/*
-.v-list {
-  height: 100%;
-  overflow-y: auto;
+<style scoped>
+.scroll {
+  height: 750px;
+  overflow: scroll;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
-*/
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scroll::-webkit-scrollbar {
+  display: none;
+}
 </style>

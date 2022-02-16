@@ -12,7 +12,12 @@ const EnumRouter = Object.freeze([
   {
     title: "Audio",
     route: "/audio",
-    src: "/icons/music-app.svg",
+    src: "/icons/icon-audio.svg",
+  },
+  {
+    title: "Test",
+    route: "/test",
+    src: "/icons/icon-wip.png",
   },
 ]);
 

@@ -32,34 +32,44 @@
 
           <!-- Tab view -->
           <v-tabs-items v-model="selectedTabIndex">
-            <!-- Dynamically create tab view for audio audioCategories -->
-            <v-tab-item v-for="(tab, i) in audioCategories" :key="`tab_item_category${i}`" :transition="false">
-              <v-list>
-                <TreeviewAudio :audioFolder="getAudioFolderByTitle(tab.title)" :idPlaylist="idPlaylist" :enableDnd="true" :enablePlay="true" />
-              </v-list>
-            </v-tab-item>
+            <div class="scroll">
+              <!-- Dynamically create tab view for audio audioCategories -->
+              <v-tab-item v-for="(tab, i) in audioCategories" :key="`tab_item_category${i}`" :transition="false">
+                <v-list>
+                  <TreeviewAudio :audioFolder="getAudioFolderByTitle(tab.title)" :idPlaylist="idPlaylist" :enableDnd="true" :enablePlay="true" />
+                </v-list>
+              </v-tab-item>
+            </div>
           </v-tabs-items>
         </v-col>
         <v-divider vertical />
 
         <!-- col 2 - playlist -->
         <v-col cols="6">
-          <!-- Add audios -->
-          <center>
-            <v-btn class="ma-4 zoom-sm primary" rounded>
-              <v-icon left v-text="'mdi-folder-multiple-plus'" />
-              Ajouter dossier à la racine
-            </v-btn>
-          </center>
+          <div class="scroll">
+            <!-- Add audios -->
+            <center>
+              <v-btn class="ma-4 zoom-sm primary" rounded>
+                <v-icon left v-text="'mdi-folder-multiple-plus'" />
+                Ajouter dossier à la racine
+              </v-btn>
+            </center>
 
-          <!-- No music warning -->
-          <div v-if="!savedPlaylist.rootFolder.length">
-            <center class="font-italic pa-8">Cette playlist est vide :'(</center>
-          </div>
+            <!-- No music warning -->
+            <div v-if="!savedPlaylist.rootFolder.length">
+              <center class="font-italic pa-8">Cette playlist est vide :'(</center>
+            </div>
 
-          <!-- playlist's audios -->
-          <div v-else>
-            <TreeviewAudio :audioFolder="savedPlaylist.rootFolder" :idPlaylist="idPlaylist" :enableDnd="true" :enableEdit="true" :enablePlay="true" />
+            <!-- playlist's audios -->
+            <div v-else>
+              <TreeviewAudio
+                :audioFolder="savedPlaylist.rootFolder"
+                :idPlaylist="idPlaylist"
+                :enableDnd="true"
+                :enableEdit="true"
+                :enablePlay="true"
+              />
+            </div>
           </div>
         </v-col>
       </v-row>
@@ -200,3 +210,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.scroll {
+  height: 750px;
+  overflow: scroll;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scroll::-webkit-scrollbar {
+  display: none;
+}
+</style>

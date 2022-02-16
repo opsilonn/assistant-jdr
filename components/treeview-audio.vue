@@ -1,96 +1,101 @@
 <template>
-  <v-treeview :items="audioFolder" hoverable open-on-click shaped return-object dense>
-    <!-- Prepend icon -->
-    <template v-slot:prepend="{ item, open }">
-      <div @click="onClick(item)">
-        <v-icon
-          v-text="
-            item.children
-              ? open
-                ? 'mdi-folder-open'
-                : 'mdi-folder'
-              : item.path.split('/')[2].includes('Ambiance')
-              ? 'mdi-city-variant-outline'
-              : item.path.split('/')[2].includes('Musique')
-              ? 'mdi-music-note'
-              : item.path.split('/')[2].includes('SFX')
-              ? 'mdi-ear-hearing'
-              : 'mdi-help'
-          "
-        />
-      </div>
-    </template>
-
-    <!-- Label -->
-    <template v-slot:label="{ item }">
-      <draggable
-        :class="{
-          playlist: enableDnd && enableEdit,
-          database: enableDnd && !enableEdit,
-          folder: !!item.children,
-        }"
-        :list="[]"
-        :group="enableDnd ? 'node' : ''"
-        :id="item.id"
-        @end="endDnD"
-      >
-        <div class="pa-4" @click="onClick(item)">
-          <!-- If editing -->
-          <v-form v-if="!!item.isEditing" :ref="`form_playlist_audio_${item.id}`" v-model="item.form" @submit.prevent>
-            <v-text-field
-              v-model="item.surnameEdit"
-              :rules="[rules.max50, rules.ascii]"
-              :label="item.name"
-              counter
-              @click.stop
-              @keyup.enter.stop="editAudioFromPlaylist(item)"
-            >
-              <template v-slot:append>
-                <v-fade-transition leave-absolute>
-                  <v-icon v-text="'mdi-check'" @click.stop="editAudioFromPlaylist(item)" />
-                </v-fade-transition>
-              </template>
-            </v-text-field>
-          </v-form>
-
-          <div v-else>
-            <span v-if="item.surname">
-              {{ item.surname }}<br />
-              <span class="font-italic">{{ item.name }}</span>
-            </span>
-            <span v-else> {{ item.name }} </span>
-          </div>
+  <div>
+    <v-treeview :items="audioFolder" hoverable open-on-click shaped return-object dense>
+      <!-- Prepend icon -->
+      <template v-slot:prepend="{ item, open }">
+        <div @click="onClick(item)">
+          <v-icon
+            v-text="
+              item.children
+                ? open
+                  ? 'mdi-folder-open'
+                  : 'mdi-folder'
+                : item.path.split('/')[2].includes('Ambiance')
+                ? 'mdi-city-variant-outline'
+                : item.path.split('/')[2].includes('Musique')
+                ? 'mdi-music-note'
+                : item.path.split('/')[2].includes('SFX')
+                ? 'mdi-ear-hearing'
+                : 'mdi-help'
+            "
+          />
         </div>
-      </draggable>
-    </template>
+      </template>
 
-    <!-- Append icon -->
-    <template v-if="enableEdit" v-slot:append="{ item, open }" @click="onClick(item)">
-      <!-- Is editing the name -->
-      <v-icon v-if="item.isEditing" class="zoom" color="grey lighten-1" v-text="'mdi-cancel'" @click.stop="cancelEdit(item)" />
+      <!-- Label -->
+      <template v-slot:label="{ item }">
+        <draggable
+          :class="{
+            playlist: enableDnd && enableEdit,
+            database: enableDnd && !enableEdit,
+            folder: !!item.children,
+          }"
+          :list="[]"
+          :group="enableDnd ? 'node' : ''"
+          :id="item.id"
+          @end="endDnD"
+        >
+          <div class="pa-4" @click="onClick(item)">
+            <!-- If editing -->
+            <v-form v-if="!!item.isEditing" :ref="`form_playlist_audio_${item.id}`" v-model="item.form" @submit.prevent>
+              <v-text-field
+                v-model="item.surnameEdit"
+                :rules="[rules.max50, rules.ascii]"
+                :label="item.name"
+                counter
+                @click.stop
+                @keyup.enter.stop="editAudioFromPlaylist(item)"
+              >
+                <template v-slot:append>
+                  <v-fade-transition leave-absolute>
+                    <v-icon v-text="'mdi-check'" @click.stop="editAudioFromPlaylist(item)" />
+                  </v-fade-transition>
+                </template>
+              </v-text-field>
+            </v-form>
 
-      <!-- other actions -->
-      <div v-else>
-        <!-- add subfolder (only for folders) -->
-        <v-icon
-          v-if="!!item.children"
-          class="zoom"
-          color="grey lighten-1"
-          v-text="'mdi-folder-multiple-plus'"
-          @click.stop="
-            open = true;
-            cancelEdit(item);
-          "
-        />
+            <div v-else>
+              <span v-if="item.surname">
+                {{ item.surname }}<br />
+                <span class="font-italic">{{ item.name }}</span>
+              </span>
+              <span v-else> {{ item.name }} </span>
+            </div>
+          </div>
+        </draggable>
+      </template>
 
-        <!-- Rename item -->
-        <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-pencil'" @click.stop="beginEdit(item)" />
+      <!-- Append icon -->
+      <template v-if="enableEdit" v-slot:append="{ item, open }" @click="onClick(item)">
+        <!-- Is editing the name -->
+        <v-icon v-if="item.isEditing" class="zoom" color="grey lighten-1" v-text="'mdi-cancel'" @click.stop="cancelEdit(item)" />
 
-        <!-- Remove item -->
-        <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-delete'" @click.stop="deleteItemFromPlaylist(item)" />
-      </div>
-    </template>
-  </v-treeview>
+        <!-- other actions -->
+        <div v-else>
+          <!-- add subfolder (only for folders) -->
+          <v-icon
+            v-if="!!item.children"
+            class="zoom"
+            color="grey lighten-1"
+            v-text="'mdi-folder-multiple-plus'"
+            @click.stop="
+              open = true;
+              cancelEdit(item);
+            "
+          />
+
+          <!-- Rename item -->
+          <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-pencil'" @click.stop="beginEdit(item)" />
+
+          <!-- Remove item -->
+          <v-icon class="zoom" color="grey lighten-1" v-text="'mdi-delete'" @click.stop="deleteItemFromPlaylist(item)" />
+        </div>
+      </template>
+    </v-treeview>
+
+    <!-- TO DO : remove this "br" tag and find a proper way to ensure that the footer never covers any data -->
+    <br v-for="n in 10" :key="n" />
+  </div>
 </template>
 
 <script>
