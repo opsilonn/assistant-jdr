@@ -1,5 +1,5 @@
 {
-  "name": "assistant-jdr-web",
+  "name": "outils-jdr",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -16,13 +16,11 @@
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "howler": "^2.2.3",
-    "jsonpath": "^1.1.1",
     "morgan": "^1.10.0",
     "nuxt": "^2.15.7",
     "pg": "^8.7.1",
     "uuid": "^8.3.2",
     "validator": "^13.7.0",
-    "vue-easy-dnd": "^1.19.0",
     "vuedraggable": "^2.24.3",
     "vuetify": "^2.5.5",
     "vuetify-draggable-treeview": "^0.0.6"
