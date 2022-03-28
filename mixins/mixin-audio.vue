@@ -3,7 +3,7 @@
 import { mapState } from "vuex";
 
 export default {
-  name: "MixinUtils",
+  name: "MixinAudio",
 
   computed: {
     // Imports

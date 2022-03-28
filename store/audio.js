@@ -1,22 +1,26 @@
 const state = () => ({
   audios: [],
   audioFolder: [],
+  audiosDatabase: [],
 });
 
 const getters = {};
 
 const mutations = {
   /** */
-  setAudioFolder(state, audioFolder) {
-    state.audioFolder = audioFolder;
+  initAudio(state, audioData) {
+    // Audios ordered in corresponding subfolders
+    state.audioFolder = audioData.audioFolder;
+    // Every audio gathered in a single list
+    state.audiosDatabase = audioData.audiosDatabase;
   },
 };
 
 const actions = {
   /** Gets ALL the audio folder */
   async fetchAudioFolder({ commit }) {
-    const audioFolder = await this.$axios.$get("/api/audios");
-    commit("setAudioFolder", audioFolder);
+    const audioData = await this.$axios.$get("/api/audios");
+    commit("initAudio", audioData);
   },
 };
 

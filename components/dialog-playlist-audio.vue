@@ -80,7 +80,7 @@
 <script>
 // Imports
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
-import MixinUtils from "@/mixins/mixin-utils";
+import MixinAudio from "@/mixins/mixin-audio";
 import EventBus from "@/EventBus.js";
 import TreeviewAudio from "@/components/treeview-audio";
 
@@ -89,7 +89,7 @@ export default {
 
   components: { TreeviewAudio },
 
-  mixins: [MixinUtils],
+  mixins: [MixinAudio],
 
   props: {
     idPlaylist: {
@@ -140,7 +140,8 @@ export default {
      * @param {String} name Title of the folder to find
      */
     getAudioFolderByTitle(name) {
-      return this.audioFolder.find((folder) => folder.name === name).children;
+      const folder = this.audioFolder.find((folder) => folder.name === name);
+      return folder ? folder.children : folder;
     },
 
     /** */
@@ -169,20 +170,17 @@ export default {
         }
       }
 
-      console.log(audioToAdd);
-
       await this.addAudioToPlaylist({
         idPlaylist: this.idPlaylist,
         audio: audioToAdd,
         idFolder: idFolder,
-        index: index,
+        index: index
       });
       this.isPlaylistUpdated = true;
     },
 
     /** */
     async addFolder(folderData) {
-      console.log(`add folder at path ${folderData.path}, index ${folderData.index}`);
       // await this.addAudioToPlaylist({
       //   idPlaylist: this.idPlaylist,
       //   audio: file,

@@ -85,7 +85,7 @@ export default {
     audioCategoriesVolumes() {
       return this.audioCategories.map((_) => ({
         title: _.title,
-        volume: _.volume,
+        volume: _.volume
       }));
     },
   },

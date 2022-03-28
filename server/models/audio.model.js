@@ -2,9 +2,7 @@ import fs from "fs";
 import { v4 as uuidv4 } from "uuid";
 import validator from "validator";
 
-const audioFolder = "./static/audio";
-
-const UUID_LENGTH = 36;
+const audioFolderPath = "./static/audio";
 
 export default class Audio {
   /** @type {String} */
@@ -21,12 +19,18 @@ export default class Audio {
     this.path = newObj.path;
   }
 
+  audiosDatabase = [];
+
   /**
    * @returns {Promise<[]>}
    */
   static async getAll() {
-    const audioFiles = await this.readFolder(audioFolder);
-    return audioFiles;
+    this.audiosDatabase = [];
+    const audioFolder = await this.readFolder(audioFolderPath);
+    return {
+      audioFolder: audioFolder,
+      audiosDatabase: this.audiosDatabase
+    };
   }
 
   /**
@@ -61,6 +65,7 @@ export default class Audio {
    * @returns
    */
   static GetItem(fileName, path, isFolder) {
+    // On déclare nos variables
     let id;
     let name;
     let fullPath;
@@ -77,9 +82,13 @@ export default class Audio {
       fs.renameSync(`${path}/${fileName}`, fullPath);
     }
 
+    // On construit l'audio
     const item = { id: id, name: name, path: fullPath.replace("./static", "") };
+
     if (isFolder) {
       item.children = this.readFolder(fullPath);
+    } else {
+      this.audiosDatabase.push(item);
     }
 
     return item;

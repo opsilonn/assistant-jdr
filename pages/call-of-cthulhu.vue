@@ -224,7 +224,7 @@ export default {
           impact: 0,
           carrure: 0,
           esquive: 20,
-        },
+        }
       };
     },
 

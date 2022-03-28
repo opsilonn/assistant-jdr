@@ -110,6 +110,8 @@ import ListItemAudio from "@/components/list-item-audio";
 import Loader from "@/components/loader";
 import TreeviewAudio from "@/components/treeview-audio";
 
+import MixinPlaylist from "@/mixins/mixin-playlist";
+
 export default {
   name: "PageAudio",
   transition: "slide-bottom",
@@ -122,6 +124,8 @@ export default {
     Loader,
     TreeviewAudio,
   },
+
+  mixins: [MixinPlaylist],
 
   data: () => ({
     // Whether the page is loaded or not
@@ -140,7 +144,7 @@ export default {
 
   computed: {
     // Imports
-    ...mapState("audio", ["audioFolder"]),
+    ...mapState("audio", ["audioFolder", "audiosDatabase"]),
     ...mapState("playlist", ["playlists"]),
     ...mapState("audioPlayer", ["audioCategories"]),
 
@@ -162,20 +166,33 @@ export default {
   },
 
   async mounted() {
+    // 1 - We first declare a subscription
+    let unsubscribe = null;
+    unsubscribe = this.$store.subscribe(({ type }) => {
+      if (type === "playlist/addPlaylist") {
+        // So it only reacts once
+        unsubscribe();
+
+        // We handle the update of all the playlists
+        this.updateStatePlaylists();
+
+        // Set tabs
+        const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
+        this.tabs = tabsCategory.concat([this.tabPlaylist]);
+
+        this.selectedPlaylistIndex = -1;
+
+        // All is complete, we consider the page loaded
+        this.isPageLoaded = true;
+      }
+    });
+
+    // 2 - We then make the call that will trigger the subscription
     // We fetch the audio data
     await this.fetchAudioFolder();
 
     // We fetch the playlists
     await this.fetchAllPlaylists();
-
-    // Set tabs
-    const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
-    this.tabs = tabsCategory.concat([this.tabPlaylist]);
-
-    this.selectedPlaylistIndex = -1;
-
-    // All is complete, we consider the page loaded
-    this.isPageLoaded = true;
   },
 
   methods: {
@@ -183,13 +200,15 @@ export default {
     ...mapActions("audio", ["fetchAudioFolder"]),
     ...mapActions("playlist", ["fetchAllPlaylists", "createPlaylist"]),
     ...mapMutations("audioPlayer", ["stopAllAudioTracks"]),
+    ...mapMutations("playlist", ["setAudiosDatabase"]),
 
     /**
      * Gets a specific folder from the audioFolder, given its title
      * @param {String} name Title of the folder to find
      */
     getAudioFolderByTitle(name) {
-      return this.audioFolder.find((folder) => folder.name === name).children;
+      const folder = this.audioFolder.find((folder) => folder.name === name);
+      return folder ? folder.children : folder;
     },
 
     /** */

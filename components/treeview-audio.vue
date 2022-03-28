@@ -209,7 +209,7 @@ export default {
     async deleteItemFromPlaylist(item) {
       const data = {
         idPlaylist: this.idPlaylist,
-        idItem: item.id,
+        idItem: item.id
       };
       const res = await this.deleteFromPlaylist(data);
     },

@@ -153,7 +153,7 @@ export default {
     async update() {
       const editedPlaylist = {
         id: this.playlist.id,
-        name: this.playlistName,
+        name: this.playlistName
       };
       const res = await this.updatePlaylist(editedPlaylist);
       if (!!res) {

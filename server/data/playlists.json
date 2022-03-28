@@ -5,106 +5,73 @@
     "total": 17,
     "rootFolder": [
       {
-        "id": "fc36eb9c-cf5c-4311-9da4-299be7ab504f",
-        "name": "Metallica cover - Master of Puppets (Naughty Claudia)",
-        "surname": "Intro 1",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/jazz afc22163-1711-4cce-8b59-a51df4479095/Metallica cover - Master of Puppets (Naughty Claudia) 115a394a-6067-41ba-8e61-4570417cf1a4.mp3"
+        "id": "115a394a-6067-41ba-8e61-4570417cf1a4",
+        "surname": "Intro 1"
       },
       {
-        "id": "2fdf4dd4-8e8c-4739-ac60-b484e2f265af",
-        "name": "2 - The Slumber",
-        "surname": "Intro 2",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/2 - The Slumber bef2a40b-8b36-4671-883d-f7e6b643e24a.mp3"
+        "id": "bef2a40b-8b36-4671-883d-f7e6b643e24a",
+        "surname": "Intro 2"
       },
       {
-        "id": "3bb67487-9a23-4818-8a74-bf986ec02b1c",
-        "name": "1 - Kitab Al-Azif, We Need to Hurry !",
-        "surname": "Prologue",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/1 - Kitab Al-Azif, We Need to Hurry ! 781b6dd6-704b-4a73-8c18-f788d547e8e3.mp3"
+        "id": "781b6dd6-704b-4a73-8c18-f788d547e8e3",
+        "surname": "Prologue"
       },
       {
-        "id": "67eed094-77b5-42cb-b5f6-7f1a6a952d45",
-        "name": "Cthulhu Mythos - The Thing on the Doorstep",
-        "surname": "A1 - chez les joueurs",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/orchestral 5e48c6f9-05c7-4f0e-a458-cdefb48642b6/Cthulhu Mythos - The Thing on the Doorstep 7c7b324b-cd6f-4437-9289-011b58a4d072.mp3"
+        "id": "7c7b324b-cd6f-4437-9289-011b58a4d072",
+        "surname": "A1 - chez les joueurs"
       },
       {
-        "id": "644a18a4-b6b8-4d76-9206-0439fe5f1149",
-        "name": "3 - The Asylum",
-        "surname": "A2 - l'asile",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/3 - The Asylum 0ffd2ea6-eca3-4a95-9608-7f4f06107760.mp3"
+        "id": "0ffd2ea6-eca3-4a95-9608-7f4f06107760",
+        "surname": "A2 - l'asile"
       },
       {
-        "id": "5474d1b1-f1c9-43f0-8258-01cec111a06d",
-        "name": "The Whisperer in Darkness",
-        "surname": "A3 - l'appartement de JOHN DOE",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/horreur a4548f33-7670-4a89-bbca-6900351e0ae9/Tales from the Necronomicon 3ab0cade-6f27-4a86-b774-3bc9739e081a/The Whisperer in Darkness ddff7502-a120-4cde-b09c-24d7918b8b5f.mp3"
+        "id": "ddff7502-a120-4cde-b09c-24d7918b8b5f",
+        "surname": "A3 - l'appartement de JOHN DOE"
       },
       {
-        "id": "459fb0e6-31ab-46d4-82f9-7b99b596f0b3",
+        "id": "aa184eef-bb5b-4425-a30e-39eaa9a09877",
         "name": "The Dream-Quest of Unknown Kadath Part 2",
-        "surname": "B1 - British Museum",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/horreur a4548f33-7670-4a89-bbca-6900351e0ae9/Tales from the Necronomicon 3ab0cade-6f27-4a86-b774-3bc9739e081a/The Dream-Quest of Unknown Kadath Part 2 aa184eef-bb5b-4425-a30e-39eaa9a09877.mp3"
+        "surname": "B1 - British Museum"
       },
       {
-        "id": "dbcf4355-8e46-4ec3-a774-36184c2f8c7f",
-        "name": "Necronomicon",
-        "surname": "B1 - British Museum - les archives",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/horreur a4548f33-7670-4a89-bbca-6900351e0ae9/Nox Arcana - Necronomicon cfe21ac7-2d37-497e-959e-d5e96fadc103/Necronomicon b651524a-bf1c-4aae-8197-c748adf0f524.mp3"
+        "id": "b651524a-bf1c-4aae-8197-c748adf0f524",
+        "surname": "B1 - British Museum - les archives"
       },
       {
-        "id": "ef10b6e0-fcdc-4088-be9a-3aa343dadced",
-        "name": "6 - J.R.R.T.'s Theme",
-        "surname": "B1 - British Museum - Tolkien",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/6 - J.R.R.T.'s Theme d6e7725f-e364-4ec5-94b7-399855f8d37b.mp3"
+        "id": "d6e7725f-e364-4ec5-94b7-399855f8d37b",
+        "surname": "B1 - British Museum - Tolkien"
       },
       {
-        "id": "076ac440-d68a-468e-99d4-b99de8e61e0f",
-        "name": "5 - A Shocking Discovery",
-        "surname": "B2 - Science Museum",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/5 - A Shocking Discovery 576fc4e8-5e88-45c6-81d9-2707ee74582a.mp3"
+        "id": "576fc4e8-5e88-45c6-81d9-2707ee74582a",
+        "surname": "B2 - Science Museum"
       },
       {
-        "id": "674a3e6f-a0e9-452c-82ae-741d94f1e666",
-        "name": "Temple Of The Black Pharaoh",
-        "surname": "B3 - l'obélisque",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/horreur a4548f33-7670-4a89-bbca-6900351e0ae9/Nox Arcana - Necronomicon cfe21ac7-2d37-497e-959e-d5e96fadc103/Temple Of The Black Pharaoh 49af96b0-c720-475f-a564-25c49f605538.mp3"
+        "id": "49af96b0-c720-475f-a564-25c49f605538",
+        "surname": "B3 - l'obélisque"
       },
       {
-        "id": "68a81c6c-6075-472a-94e5-b01c11413f09",
-        "name": "4 - Crowley's Theme",
-        "surname": "C1 - Aleister Crowley",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/4 - Crowley's Theme fbe92927-05d5-4934-80c5-4906cc19c4af.mp3"
+        "id": "fbe92927-05d5-4934-80c5-4906cc19c4af",
+        "surname": "C1 - Aleister Crowley"
       },
       {
-        "id": "a86b299f-660c-42a5-9e3e-5d0e274f696e",
-        "name": "The Haunter of the Dark",
-        "surname": "C2 - Megan Schneider",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/horreur a4548f33-7670-4a89-bbca-6900351e0ae9/Tales from the Necronomicon 3ab0cade-6f27-4a86-b774-3bc9739e081a/The Haunter of the Dark 5eaaab6c-61d5-46fc-9d91-b76c43f411d5.mp3"
+        "id": "5eaaab6c-61d5-46fc-9d91-b76c43f411d5",
+        "surname": "C2 - Megan Schneider"
       },
       {
-        "id": "74549cb9-a3d8-46e2-9c0e-64ad3101a6ca",
-        "name": "Hans Zimmer - Mountains (Interstellar Soundtrack)",
-        "surname": "C2 - Megan Schneider (le sort)",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/Hans Zimmer - Mountains (Interstellar Soundtrack) aca83a2a-987d-4969-b8ab-9226624cb4a3.mp3"
+        "id": "aca83a2a-987d-4969-b8ab-9226624cb4a3",
+        "surname": "C2 - Megan Schneider (le sort)"
       },
       {
-        "id": "da4ed568-418d-47bf-8430-a9038b077462",
-        "name": "7 - The Tomb",
-        "surname": "D - Cathédrale St Paul",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/albums 029a48a3-8687-48a2-8935-edfb60debca9/Pax Cthuliana 5a59cf51-1e97-4989-bd9a-7b2db004245e/7 - The Tomb 53a080dc-b0ad-4068-8233-53d6133310cc.mp3"
+        "id": "53a080dc-b0ad-4068-8233-53d6133310cc",
+        "surname": "D - Cathédrale St Paul"
       },
       {
-        "id": "ac3b1ec0-4a28-4086-86e3-afc230dac283",
-        "name": "The Shadow Out of Time",
-        "surname": "D - Cathédrale St Paul (la tombe)",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/horreur a4548f33-7670-4a89-bbca-6900351e0ae9/Tales from the Necronomicon 3ab0cade-6f27-4a86-b774-3bc9739e081a/The Shadow Out of Time 78b578ad-a6c1-41c8-971d-5cfff7bacfdb.mp3"
+        "id": "78b578ad-a6c1-41c8-971d-5cfff7bacfdb",
+        "surname": "D - Cathédrale St Paul (la tombe)"
       },
       {
-        "id": "0e41c7e5-a532-4831-8b1b-4db2e6118af0",
-        "name": "Dragon Age - The Place Of All Fears",
-        "surname": "Epilogue",
-        "path": "/audio/Musique 5293c3ab-cac3-4b0d-941c-377cebd55986/Dragon Age - The Place Of All Fears 461d6cd9-df1f-4f17-85dd-da933b5a149e.mp3"
+        "id": "461d6cd9-df1f-4f17-85dd-da933b5a149e",
+        "surname": "Epilogue"
       }
     ]
   }

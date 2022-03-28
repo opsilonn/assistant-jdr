@@ -1,6 +1,6 @@
 const state = () => ({
   playlists: [],
-  savedPlaylist: { id: -1, name: "", rootFolder: { folders: [], files: [] } },
+  savedPlaylist: { id: -1, name: "", rootFolder: { folders: [], files: [] } }
 });
 
 const getters = {
@@ -43,7 +43,7 @@ const mutations = {
    */
   setSavedPlaylist(state, savedPlaylist) {
     state.savedPlaylist = savedPlaylist;
-  },
+  }
 };
 
 const actions = {
@@ -102,7 +102,7 @@ const actions = {
     const params = {
       audio: {
         name: audio.name,
-        path: audio.path,
+        path: audio.path
       },
       idFolder: idFolder,
       index: index,
@@ -120,7 +120,7 @@ const actions = {
       audio: {
         id: audio.id,
         name: audio.name,
-        surname: audio.surname,
+        surname: audio.surname
       },
       path: path,
     };
