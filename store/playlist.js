@@ -1,6 +1,22 @@
+/** @param {String} path */
+function fillPlaylistWithData(currentPlaylistNode, database) {
+  currentPlaylistNode.forEach((item) => {
+    // If the item is a folder : we go through it
+    if (!!item.children) {
+      this.updateFolder(folder.children);
+    } else {
+      // If the item is an audio : we fetch it and update the current data
+      const audio = database.find((a) => a.id === item.idAudio);
+      item.name = audio.name;
+      item.path = audio.path;
+    }
+  });
+}
+
 const state = () => ({
   playlists: [],
-  savedPlaylist: { id: -1, name: "", rootFolder: { folders: [], files: [] } }
+  savedPlaylist: { id: -1, name: "", rootFolder: [] },
+  database: [],
 });
 
 const getters = {
@@ -15,6 +31,7 @@ const mutations = {
    * @param {*} playlist
    */
   addPlaylist(state, playlist) {
+    fillPlaylistWithData(playlist.rootFolder, state.database);
     const index = state.playlists.findIndex((_) => _.id === playlist.id);
     if (index < 0) {
       state.playlists.push(playlist);
@@ -42,8 +59,27 @@ const mutations = {
    * @param {*} savedPlaylist
    */
   setSavedPlaylist(state, savedPlaylist) {
+    console.log(savedPlaylist);
+    fillPlaylistWithData(savedPlaylist.rootFolder, state.database);
     state.savedPlaylist = savedPlaylist;
-  }
+  },
+
+  /**
+   *
+   * @param {*} state
+   */
+  resetSavedPlaylist(state) {
+    state.savedPlaylist = { id: -1, name: "", rootFolder: [] };
+  },
+
+  /**
+   *
+   * @param {*} state
+   * @param {*} database
+   */
+  setAudiosDatabase(state, database) {
+    state.database = database;
+  },
 };
 
 const actions = {
@@ -97,12 +133,12 @@ const actions = {
   },
 
   /** */
-  async addAudioToPlaylist({ commit }, { idPlaylist, audio = { name, path }, idFolder, index }) {
+  async addAudioToPlaylist({ commit }, { idPlaylist, audio = { id, path }, idFolder, index }) {
     const url = `/api/playlist/${idPlaylist}/audio`;
     const params = {
       audio: {
-        name: audio.name,
-        path: audio.path
+        id: audio.id,
+        path: audio.path,
       },
       idFolder: idFolder,
       index: index,
@@ -111,16 +147,13 @@ const actions = {
   },
 
   /** */
-  async updatePlaylistAudio({ commit }, { idPlaylist, audio = { id, name, surname }, path }) {
+  async updatePlaylistAudio({ commit }, { idPlaylist, audio = { id, idAudio, surname }, path }) {
     const url = `/api/playlist/${idPlaylist}/audio/${audio.id}`;
     const params = {
-      id: audio.id,
-      name: audio.name,
-      surname: audio.surname,
       audio: {
         id: audio.id,
-        name: audio.name,
-        surname: audio.surname
+        idAudio: audio.idAudio,
+        surname: audio.surname,
       },
       path: path,
     };

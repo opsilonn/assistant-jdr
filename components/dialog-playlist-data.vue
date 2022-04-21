@@ -4,10 +4,7 @@
     <v-dialog v-model="dialog" max-width="500px" @click:outside="closeDialog">
       <v-card>
         <!-- Title -->
-        <v-card-title
-          class="headline primary--text"
-          v-text="isNewPlaylist ? 'Nouvelle playlist' : 'Modification playlist'"
-        />
+        <v-card-title class="headline primary--text" v-text="isNewPlaylist ? 'Nouvelle playlist' : 'Modification playlist'" />
 
         <!-- Content -->
         <v-card-text>
@@ -34,24 +31,13 @@
           <v-spacer />
 
           <!-- Button : delete -->
-          <v-btn
-            v-if="!isNewPlaylist"
-            color="error"
-            text
-            @click="remove"
-            v-text="'Supprimer'"
-          />
+          <v-btn v-if="!isNewPlaylist" color="error" text @click="remove" v-text="'Supprimer'" />
 
           <!-- Button : cancel -->
           <v-btn color="warning" text @click="closeDialog" v-text="'Annuler'" />
 
           <!-- Button : action -->
-          <v-btn
-            color="success"
-            text
-            @click="action"
-            v-text="isNewPlaylist ? 'Créer' : 'Modifier'"
-          />
+          <v-btn color="success" text @click="action" v-text="isNewPlaylist ? 'Créer' : 'Modifier'" />
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -64,7 +50,7 @@ import { mapActions, mapGetters } from "vuex";
 import MixinRules from "@/mixins/mixin-rules";
 
 export default {
-  name: "DialogPlaylist",
+  name: "DialogPlaylistData",
 
   mixins: [MixinRules],
 
@@ -108,11 +94,7 @@ export default {
 
   methods: {
     // Imports
-    ...mapActions("playlist", [
-      "createPlaylist",
-      "updatePlaylist",
-      "deletePlaylist",
-    ]),
+    ...mapActions("playlist", ["createPlaylist", "updatePlaylist", "deletePlaylist"]),
 
     /** Emits the event to close the dialog */
     closeDialog() {
@@ -153,7 +135,7 @@ export default {
     async update() {
       const editedPlaylist = {
         id: this.playlist.id,
-        name: this.playlistName
+        name: this.playlistName,
       };
       const res = await this.updatePlaylist(editedPlaylist);
       if (!!res) {

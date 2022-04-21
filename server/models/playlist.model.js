@@ -185,9 +185,8 @@ export default class Playlist {
     // We initialize the new Audio
     const newAudio = {
       id: uuidv4(),
-      name: audio.name,
+      idAudio: audio.id,
       surname: "",
-      path: audio.path,
     };
     playlist.total += 1;
 
@@ -230,12 +229,11 @@ export default class Playlist {
   /**
    *
    * @param {String} idPlaylist
-   * @param {String} idAudio
-   * @param {Audio} audioReceived
+   * @param {Audio} audio
    * @param {String} path
    * @returns {Promise<Playlist>}
    */
-  static async updateAudio(idPlaylist, idAudio, audioReceived, path) {
+  static async updateAudio(idPlaylist, audio) {
     // Get all the playlists
     let playlists = await this.getAll(pathFileSave);
 
@@ -263,8 +261,8 @@ export default class Playlist {
     }
 
     // We update the file
-    const file = folder.files.find((f) => f.id === idAudio);
-    file.surname = audioReceived.surname || "";
+    const file = folder.find((f) => f.id === audio.id);
+    file.surname = audio.surname || "";
 
     writeFile(pathFileSave, JSON.stringify(playlists, null, 2), "utf8");
     return playlist;
@@ -323,29 +321,8 @@ export default class Playlist {
    * @param {String} idPlaylist
    * @returns {Promise<Playlist>}
    */
-  static async savePlaylist(idPlaylist) {
-    // We get the wanted playlist
-    const playlistToSave = (await this.getAll(pathFileSave)).find((_) => _.id === idPlaylist);
-
-    // If not found : Error
-    if (!playlistToSave) {
-      throw new Error("Playlist not found !");
-    }
-
-    // Get all the playlists
-    let playlists = await this.getAll();
-    // We get the index of the playlist to override
-    const index = playlists.findIndex((_) => _.id === idPlaylist);
-
-    // If not found : Error
-    if (0 < index) {
-      throw new Error("Playlist not found !");
-    }
-
-    playlists[index] = playlistToSave;
-
-    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
-    return playlistToSave;
+  static savePlaylist(idPlaylist) {
+    return this.savePlaylistFromFolderAToFolderB(idPlaylist, pathFileSave, pathFile);
   }
 
   /**
@@ -353,9 +330,20 @@ export default class Playlist {
    * @param {String} idPlaylist
    * @returns {Promise<Playlist>}
    */
-  static async resetPlaylist(idPlaylist) {
+  static resetPlaylist(idPlaylist) {
+    return this.savePlaylistFromFolderAToFolderB(idPlaylist, pathFile, pathFileSave);
+  }
+
+  /**
+   *
+   * @param {String} idPlaylist
+   * @param {String} pathFrom
+   * @param {String} pathTo
+   * @returns {Promise<Playlist>}
+   */
+  static async savePlaylistFromFolderAToFolderB(idPlaylist, pathFrom, pathTo) {
     // We get the wanted playlist
-    const playlistToSave = (await this.getAll()).find((_) => _.id === idPlaylist);
+    const playlistToSave = (await this.getAll(pathFrom)).find((_) => _.id === idPlaylist);
 
     // If not found : Error
     if (!playlistToSave) {
@@ -363,18 +351,18 @@ export default class Playlist {
     }
 
     // Get all the playlists
-    let playlists = await this.getAll(pathFileSave);
+    let playlists = await this.getAll(pathTo);
     // We get the index of the playlist to override
     const index = playlists.findIndex((_) => _.id === idPlaylist);
 
     // If not found : Error
-    if (0 < index) {
+    if (index < 0) {
       throw new Error("Playlist not found !");
     }
 
     playlists[index] = playlistToSave;
 
-    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
+    writeFile(pathTo, JSON.stringify(playlists, null, 2), "utf8");
     return playlistToSave;
   }
 

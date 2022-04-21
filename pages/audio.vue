@@ -92,10 +92,10 @@
       <FooterAudio />
 
       <!-- Dialog to create, update or delete a playlist -->
-      <DialogPlaylist @close-dialog="dialogPlaylist = false" :dialog="dialogPlaylist" :idPlaylist="currentPlaylistId" />
+      <DialogPlaylistData @close-dialog="dialogPlaylist = false" :dialog="dialogPlaylist" :idPlaylist="currentPlaylistId" />
 
       <!-- Dialog to add or remove audios from a playlist -->
-      <DialogPlaylistAudio @close-dialog="closeDialogPlaylist()" :dialog="dialogPlaylistAudio" :idPlaylist="currentPlaylistId" />
+      <DialogPlaylistContent @close-dialog="closeDialogPlaylist()" :dialog="dialogPlaylistAudio" :idPlaylist="currentPlaylistId" />
     </div>
   </div>
 </template>
@@ -103,29 +103,23 @@
 <script>
 // Imports
 import { mapActions, mapMutations, mapState } from "vuex";
-import DialogPlaylist from "@/components/dialog-playlist";
-import DialogPlaylistAudio from "@/components/dialog-playlist-audio";
+import DialogPlaylistData from "@/components/dialog-playlist-data";
+import DialogPlaylistContent from "@/components/dialog-playlist-content";
 import FooterAudio from "@/components/footer-audio";
-import ListItemAudio from "@/components/list-item-audio";
 import Loader from "@/components/loader";
 import TreeviewAudio from "@/components/treeview-audio";
-
-import MixinPlaylist from "@/mixins/mixin-playlist";
 
 export default {
   name: "PageAudio",
   transition: "slide-bottom",
 
   components: {
-    DialogPlaylist,
-    DialogPlaylistAudio,
+    DialogPlaylistData,
+    DialogPlaylistContent,
     FooterAudio,
-    ListItemAudio,
     Loader,
     TreeviewAudio,
   },
-
-  mixins: [MixinPlaylist],
 
   data: () => ({
     // Whether the page is loaded or not
@@ -166,33 +160,22 @@ export default {
   },
 
   async mounted() {
-    // 1 - We first declare a subscription
-    let unsubscribe = null;
-    unsubscribe = this.$store.subscribe(({ type }) => {
-      if (type === "playlist/addPlaylist") {
-        // So it only reacts once
-        unsubscribe();
+    // We set the tabs
+    const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
+    this.tabs = tabsCategory.concat([this.tabPlaylist]);
 
-        // We handle the update of all the playlists
-        this.updateStatePlaylists();
-
-        // Set tabs
-        const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
-        this.tabs = tabsCategory.concat([this.tabPlaylist]);
-
-        this.selectedPlaylistIndex = -1;
-
-        // All is complete, we consider the page loaded
-        this.isPageLoaded = true;
-      }
-    });
-
-    // 2 - We then make the call that will trigger the subscription
     // We fetch the audio data
     await this.fetchAudioFolder();
 
+    // We load the audios Database in the playlist's store
+    this.setAudiosDatabase(this.audiosDatabase);
+
     // We fetch the playlists
     await this.fetchAllPlaylists();
+
+    this.selectedPlaylistIndex = -1;
+
+    this.isPageLoaded = true;
   },
 
   methods: {

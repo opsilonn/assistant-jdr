@@ -179,7 +179,6 @@ export default {
       const form = this.$refs[formId];
 
       if (form.validate()) {
-        console.log("euuuh", form.validate());
         // We update the playlist if the surname is different
         if (file.surname !== file.surnameEdit) {
           const data = {
@@ -189,10 +188,8 @@ export default {
               name: file.name,
               surname: file.surnameEdit,
             },
-            path: this.pathPlaylist || "",
           };
           const res = await this.updatePlaylistAudio(data);
-          console.log("res : ", res);
         }
 
         // We first edit the object
@@ -209,24 +206,24 @@ export default {
     async deleteItemFromPlaylist(item) {
       const data = {
         idPlaylist: this.idPlaylist,
-        idItem: item.id
+        idItem: item.id,
       };
       const res = await this.deleteFromPlaylist(data);
     },
 
     /** */
     endDnD(event) {
-      const fromIsDatabase = event.from.className.includes("database");
-      const fromIsPlaylist = event.from.className.includes("playlist");
-      const toIsDatabase = event.to.className.includes("database");
-      const toIsPlaylist = event.to.className.includes("playlist");
+      const isFromDatabase = event.from.className.includes("database");
+      const isFromPlaylist = event.from.className.includes("playlist");
+      const isToDatabase = event.to.className.includes("database");
+      const isToPlaylist = event.to.className.includes("playlist");
 
       // Moving between the database : no action
-      if (fromIsDatabase && toIsDatabase) {
+      if (isFromDatabase && isToDatabase) {
         return;
       }
 
-      const eventName = fromIsDatabase && toIsPlaylist ? EventBus.ADD_TO_PLAYLIST : EventBus.MOVE_WITHIN_PLAYLIST;
+      const eventName = isFromDatabase && isToPlaylist ? EventBus.ADD_TO_PLAYLIST : EventBus.MOVE_WITHIN_PLAYLIST;
       EventBus.$emit(eventName, event);
     },
   },

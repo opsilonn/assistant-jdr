@@ -47,18 +47,16 @@
         <!-- col 2 - playlist -->
         <v-col cols="6">
           <div class="scroll">
-            <!-- Add audios -->
-            <center>
-              <v-btn class="ma-4 zoom-sm primary" rounded>
-                <v-icon left v-text="'mdi-folder-multiple-plus'" />
-                Ajouter dossier à la racine
-              </v-btn>
-            </center>
-
-            <!-- No music warning -->
-            <div v-if="!savedPlaylist.rootFolder.length">
-              <center class="font-italic pa-8">Cette playlist est vide :'(</center>
-            </div>
+            <draggable v-if="!savedPlaylist.rootFolder.length" class="playlist" :list="[]" group="node" id="prout">
+              <v-row>
+                <v-col>
+                  <!-- No music warning -->
+                  <div>
+                    <center class="font-italic pa-8">Cette playlist est vide :'(</center>
+                  </div>
+                </v-col>
+              </v-row>
+            </draggable>
 
             <!-- playlist's audios -->
             <div v-else>
@@ -83,11 +81,12 @@ import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import MixinAudio from "@/mixins/mixin-audio";
 import EventBus from "@/EventBus.js";
 import TreeviewAudio from "@/components/treeview-audio";
+import draggable from "vuedraggable";
 
 export default {
-  name: "DialogPlaylistAudio",
+  name: "DialogPlaylistContent",
 
-  components: { TreeviewAudio },
+  components: { draggable, TreeviewAudio },
 
   mixins: [MixinAudio],
 
@@ -111,7 +110,7 @@ export default {
     /** whenever the dialog is opened */
     dialog() {
       if (this.dialog) {
-        // get the Playlist
+        this.resetSavedPlaylist({});
         this.fetchSavedPlaylist({ id: this.idPlaylist });
         this.isPlaylistUpdated = false;
       }
@@ -134,14 +133,14 @@ export default {
   methods: {
     // Imports
     ...mapActions("playlist", ["fetchSavedPlaylist", "addAudioToPlaylist", "resetPlaylist", "savePlaylist"]),
+    ...mapMutations("playlist", ["resetSavedPlaylist"]),
 
     /**
      * Gets a specific folder from the audioFolder, given its title
      * @param {String} name Title of the folder to find
      */
     getAudioFolderByTitle(name) {
-      const folder = this.audioFolder.find((folder) => folder.name === name);
-      return folder ? folder.children : folder;
+      return this.audioFolder.find((folder) => folder.name === name).children;
     },
 
     /** */
@@ -166,7 +165,7 @@ export default {
           // root folder
           const audioNextTo = this.getAudioById(event.to.id, this.savedPlaylist.rootFolder);
           idFolder = "";
-          index = this.savedPlaylist.rootFolder.indexOf(audioNextTo);
+          index = Math.max(0, this.savedPlaylist.rootFolder.indexOf(audioNextTo));
         }
       }
 
@@ -174,7 +173,7 @@ export default {
         idPlaylist: this.idPlaylist,
         audio: audioToAdd,
         idFolder: idFolder,
-        index: index
+        index: index,
       });
       this.isPlaylistUpdated = true;
     },
