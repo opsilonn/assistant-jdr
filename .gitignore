@@ -95,5 +95,9 @@ package-lock.json
 # Local server configuration
 local.server.config.js
 
+# les playlists, propre à chacun
+/server/data/playlists.json
+/server/data/playlists_save.json
+
 # les fichiers mp3 (trop lourds, à télécharger individuellement)
 *.mp3
