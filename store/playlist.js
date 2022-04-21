@@ -59,7 +59,6 @@ const mutations = {
    * @param {*} savedPlaylist
    */
   setSavedPlaylist(state, savedPlaylist) {
-    console.log(savedPlaylist);
     fillPlaylistWithData(savedPlaylist.rootFolder, state.database);
     state.savedPlaylist = savedPlaylist;
   },
