@@ -19,7 +19,7 @@
                 v-model="playlistName"
                 clearable
                 :rules="[rules.required, rules.max50, rules.ascii]"
-                counter="50"
+                counter="100"
                 type="text"
               />
             </v-container>

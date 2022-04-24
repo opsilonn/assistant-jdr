@@ -4,15 +4,15 @@ export default {
 
   data: () => ({
     // Input max values
-    valueMaxSmall: 50,
+    valueMaxSmall: 100,
     valueMaxBig: 65535,
 
     // Rules
     rules: {
       required: (value) => !!value || "Required",
       max50: (value) =>
-        (value !== null && value !== undefined && value.length <= 50) ||
-        "Max 50 characters",
+        (value !== null && value !== undefined && value.length <= 100) ||
+        "Max 100 characters",
       ascii: (value) =>
         (value !== null &&
           value !== undefined &&
