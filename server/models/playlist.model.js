@@ -299,18 +299,59 @@ export default class Playlist {
       throw new Error("Invalid ID !");
     }
 
-    if (!!folder && !!folder.id) {
-      // folder found (and not the root folder)
-      const indexFile = folder.children.findIndex((file) => file.id === idItem);
-      folder.children.splice(indexFile, 1);
-    } else {
-      // No folder found : remove from root
-      const indexFile = playlist.rootFolder.findIndex((file) => file.id === idItem);
-      playlist.rootFolder.splice(indexFile, 1);
-    }
+    // folder found (and not the root folder) : take children / No folder found : remove from root
+    const arr = (!!folder && !!folder.id) ? folder.children : playlist.rootFolder;
+    const indexFile = arr.findIndex((file) => file.id === idItem);
+    arr.splice(indexFile, 1);
 
     // Remove file from Playlist
     playlist.total--;
+    writeFile(pathFileSave, JSON.stringify(playlists, null, 2), "utf8");
+
+    return playlist;
+  }
+
+  /**
+   * @param {String} idPlaylist
+   * @param {String} idItem
+   * @param {String} idFolderToMoveTo
+   * @param {Number} newIndex
+   */
+  static async moveItem(idPlaylist, idItem, idFolderToMoveTo, newIndex) {
+    // Get all the playlists
+    let playlists = await this.getAll(pathFileSave);
+
+    // We get the wanted playlist
+    const playlist = playlists.find((_) => _.id === idPlaylist);
+
+    // If not found : We get the source one, from the "actual" database
+    if (!playlist) {
+      // Get all the actual playlists
+      playlists = await this.getAll();
+
+      // We get the source playlist
+      playlist = playlists.find((_) => _.id === idPlaylist);
+      if (!playlist) {
+        throw new Error("Playlist not found !");
+      }
+    }
+
+    // 1 - Remove from old location
+    // We fetch the parent folder in the arborescence
+    const oldFolder = this.getParentFolderByItemId(idItem, playlist.rootFolder)?.children || playlist.rootFolder;
+    let index = oldFolder.findIndex(_ => _.id === idItem);
+    if (index < 0) {
+      throw new Error("Item not found !");
+    }
+
+    const item = oldFolder[index];
+    oldFolder.splice(index, 1);
+
+    // 2 - Add to new location
+    const newFolder = this.getParentFolderByItemId(idFolderToMoveTo, playlist.rootFolder)?.children || playlist.rootFolder;
+    newFolder.splice(newIndex, 0, item);
+
+    // 3 - save and return playlist
     writeFile(pathFileSave, JSON.stringify(playlists, null, 2), "utf8");
 
     return playlist;
@@ -397,7 +438,7 @@ export default class Playlist {
   }
 
   /**
-   * FIXME Returns a folder given its ID, or one of its children ID
+   * Returns a folder given its ID, or one of its children's ID
    * @param {*} id
    * @param {*} folder
    * @returns
@@ -420,7 +461,7 @@ export default class Playlist {
   }
 
   /**
-   * FIXME Returns a folder given its ID, or one of its children ID
+   * FIXME Returns a folder given the ID of one of its children
    * @param {*} id
    * @param {*} folder
    * @returns

@@ -12,6 +12,7 @@ import deletePlaylist from "../controllers/playlist/delete.playlist.js";
 import postPlaylistAudio from "../controllers/playlist/post.playlist.audio.js";
 import putPlaylistAudio from "../controllers/playlist/put.playlist.audio.js";
 import deletePlaylistAudio from "../controllers/playlist/delete.playlist.audio.js";
+import putPlaylistItemMove from "../controllers/playlist/put.playlist.audio.move.js";
 
 const router = Router();
 // Playlist
@@ -26,6 +27,7 @@ router.delete("/playlist/:idPlaylist", deletePlaylist);
 // Playlist's audio
 router.post("/playlist/:idPlaylist/audio", postPlaylistAudio);
 router.put("/playlist/:idPlaylist/audio/:idAudio", putPlaylistAudio);
+router.put("/playlist/:idPlaylist/audio/:idItem/move", putPlaylistItemMove);
 router.delete("/playlist/:idPlaylist/audio/:idItem", deletePlaylistAudio);
 
 export default router;

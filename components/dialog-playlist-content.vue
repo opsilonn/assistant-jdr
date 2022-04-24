@@ -126,13 +126,14 @@ export default {
   },
 
   mounted() {
-    EventBus.$on(EventBus.ADD_TO_PLAYLIST, async (file) => this.addFile(file));
-    EventBus.$on(EventBus.ADD_FOLDER, async (folderData) => this.addFolder(folderData));
+    EventBus.$on(EventBus.ADD_TO_PLAYLIST, async (event) => this.addFile(event));
+    EventBus.$on(EventBus.MOVE_WITHIN_PLAYLIST, async (event) => this.tryMoveItemWithinPlaylist(event));
+    EventBus.$on(EventBus.ADD_FOLDER, async (event) => this.addFolder(event));
   },
 
   methods: {
     // Imports
-    ...mapActions("playlist", ["fetchSavedPlaylist", "addAudioToPlaylist", "resetPlaylist", "savePlaylist"]),
+    ...mapActions("playlist", ["fetchSavedPlaylist", "addAudioToPlaylist", "moveItemWithinPlaylist", "resetPlaylist", "savePlaylist"]),
     ...mapMutations("playlist", ["resetSavedPlaylist"]),
 
     /**
@@ -155,15 +156,14 @@ export default {
       } else {
         // We get the folder the audio is in (if root folder, id is undefined)
         const folder = this.getSubfolderByItemId(event.to.id, this.savedPlaylist.rootFolder);
+        const audioNextTo = this.getAudioById(event.to.id, this.savedPlaylist.rootFolder);
 
         if (!!folder) {
           // found folder
-          const audioNextTo = this.getAudioById(event.to.id, this.savedPlaylist.rootFolder);
           idFolder = folder.id;
           index = folder.children.indexOf(audioNextTo);
         } else {
           // root folder
-          const audioNextTo = this.getAudioById(event.to.id, this.savedPlaylist.rootFolder);
           idFolder = "";
           index = Math.max(0, this.savedPlaylist.rootFolder.indexOf(audioNextTo));
         }
@@ -179,12 +179,27 @@ export default {
     },
 
     /** */
-    async addFolder(folderData) {
-      // await this.addAudioToPlaylist({
-      //   idPlaylist: this.idPlaylist,
-      //   audio: file,
-      //   path: '',
-      // });
+    async tryMoveItemWithinPlaylist(event) {
+      let idFolderToMoveTo = "";
+      let newIndex = 0;
+
+      if (event.to.className.includes("folder")) {
+        idFolderToMoveTo = event.to.id;
+        newIndex = 0;
+      } else {
+        // We get the folder the audio is in (if root folder, id is undefined)
+        const folder = this.getSubfolderByItemId(event.to.id, this.savedPlaylist.rootFolder);
+        idFolderToMoveTo = folder?.id || "";
+        newIndex = (this.folder?.children || this.savedPlaylist.rootFolder).findIndex(_ => _.id === event.to.id);
+      }
+
+      await this.moveItemWithinPlaylist({
+        idPlaylist: this.idPlaylist,
+        idItem: event.from.id,
+        idFolderToMoveTo: idFolderToMoveTo,
+        newIndex: newIndex
+      });
+
       this.isPlaylistUpdated = true;
     },
 

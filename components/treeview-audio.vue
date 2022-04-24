@@ -198,11 +198,6 @@ export default {
       }
     },
 
-    /** */
-    addAudioToPlaylist(file) {
-      EventBus.$emit(EventBus.ADD_TO_PLAYLIST, file);
-    },
-
     async deleteItemFromPlaylist(item) {
       const data = {
         idPlaylist: this.idPlaylist,

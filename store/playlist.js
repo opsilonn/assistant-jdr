@@ -146,6 +146,16 @@ const actions = {
   },
 
   /** */
+  async moveItemWithinPlaylist({ commit }, { idPlaylist, idItem, idFolderToMoveTo, newIndex }) {
+    const url = `/api/playlist/${idPlaylist}/audio/${idItem}/move`;
+    const params = {
+      idFolderToMoveTo: idFolderToMoveTo,
+      newIndex: newIndex
+    };
+    this.$axios.$put(url, params).then((playlist) => commit("setSavedPlaylist", playlist));
+  },
+
+  /** */
   async updatePlaylistAudio({ commit }, { idPlaylist, audio = { id, idAudio, surname }, path }) {
     const url = `/api/playlist/${idPlaylist}/audio/${audio.id}`;
     const params = {
