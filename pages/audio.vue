@@ -37,24 +37,28 @@
               </center>
 
               <!-- then, we iterate through playlists -->
-              <v-list shaped two-line>
-                <v-list-item-group v-model="selectedPlaylistIndex" color="primary">
-                  <v-list-item v-for="playlist in playlists" :key="`playlist_${playlist.id}`">
-                    <v-list-item-icon>
-                      <v-icon v-text="'mdi-music-note'" />
-                    </v-list-item-icon>
+              <draggable draggable=".item" :list="[]" @end="DnD_movePlaylist">
+                <div v-for="playlist in playlists" :key="playlist.id" class="item">
+                  <v-list shaped two-line>
+                    <v-list-item-group v-model="selectedPlaylistIndex" color="primary">
+                      <v-list-item :key="`playlist_${playlist.id}`">
+                        <v-list-item-icon>
+                          <v-icon v-text="'mdi-music-note'" />
+                        </v-list-item-icon>
 
-                    <v-list-item-content>
-                      <v-list-item-title v-text="playlist.name" />
-                      <v-list-item-subtitle v-text="`piste${playlist.total ? 's' : ''} : ${playlist.total}`" />
-                    </v-list-item-content>
+                        <v-list-item-content>
+                          <v-list-item-title v-text="playlist.name" />
+                          <v-list-item-subtitle v-text="`piste${playlist.total ? 's' : ''} : ${playlist.total}`" />
+                        </v-list-item-content>
 
-                    <v-list-item-action>
-                      <v-icon color="grey lighten-1" v-text="'mdi-dots-vertical'" @click="openDialogEdit(playlist.id)" />
-                    </v-list-item-action>
-                  </v-list-item>
-                </v-list-item-group>
-              </v-list>
+                        <v-list-item-action>
+                          <v-icon color="grey lighten-1" v-text="'mdi-dots-vertical'" @click="openDialogEdit(playlist.id)" />
+                        </v-list-item-action>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-list>
+                </div>
+              </draggable>
             </v-col>
 
             <!-- divider -->
@@ -108,6 +112,7 @@ import DialogPlaylistContent from "@/components/dialog-playlist-content";
 import FooterAudio from "@/components/footer-audio";
 import Loader from "@/components/loader";
 import TreeviewAudio from "@/components/treeview-audio";
+import draggable from "vuedraggable";
 
 export default {
   name: "PageAudio",
@@ -119,6 +124,7 @@ export default {
     FooterAudio,
     Loader,
     TreeviewAudio,
+    draggable
   },
 
   data: () => ({
@@ -141,6 +147,17 @@ export default {
     ...mapState("audio", ["audioFolder", "audiosDatabase"]),
     ...mapState("playlist", ["playlists"]),
     ...mapState("audioPlayer", ["audioCategories"]),
+
+    playlistsToInteractWith: {
+      get() {
+        return this.playlists;
+      },
+      set(value) {
+        this.playlists.forEach(p => console.log(p.name, ' - ', p.id));
+        value.forEach(p => console.log(p.name, ' - ', p.id));
+        // this.$store.commit('updateList', value)
+      },
+    },
 
     /** */
     playlistIds() {
@@ -181,7 +198,7 @@ export default {
   methods: {
     // Imports
     ...mapActions("audio", ["fetchAudioFolder"]),
-    ...mapActions("playlist", ["fetchAllPlaylists", "createPlaylist"]),
+    ...mapActions("playlist", ["fetchAllPlaylists", "createPlaylist", "movePlaylist"]),
     ...mapMutations("audioPlayer", ["stopAllAudioTracks"]),
     ...mapMutations("playlist", ["setAudiosDatabase"]),
 
@@ -221,6 +238,10 @@ export default {
     async newPlaylist(newPlaylist) {
       const x = await this.createPlaylist(newPlaylist);
       this.dialogPlaylist = false;
+    },
+    /** */
+    DnD_movePlaylist(event) {
+      this.movePlaylist({oldIndex : event.oldIndex, newIndex: event.newIndex });
     },
   },
 

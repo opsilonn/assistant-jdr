@@ -44,6 +44,18 @@ const mutations = {
   /**
    *
    * @param {*} state
+   * @param {*} oldIndex
+   * @param {*} newIndex
+   */
+  movePlaylist(state, { oldIndex, newIndex }) {
+    const playlist = state.playlists[oldIndex];
+    state.playlists.splice(oldIndex, 1);
+    state.playlists.splice(newIndex, 0, playlist);
+  },
+
+  /**
+   *
+   * @param {*} state
    * @param {*} id
    */
   deletePlaylist(state, id) {
@@ -85,7 +97,7 @@ const actions = {
   /** */
   async fetchAllPlaylists({ commit }) {
     const playlists = await this.$axios.$get("/api/playlists");
-    playlists.forEach((t) => commit("addPlaylist", t));
+    playlists.forEach((p) => commit("addPlaylist", p));
   },
 
   /** */
@@ -107,6 +119,15 @@ const actions = {
     });
     commit("addPlaylist", playlist);
     return playlist;
+  },
+
+  /** */
+  async movePlaylist({ commit }, { oldIndex, newIndex }) {
+    const playlists = await this.$axios.$put(`/api/playlists/move`, {
+      oldIndex: oldIndex,
+      newIndex: newIndex
+    });
+    commit("movePlaylist", { oldIndex: oldIndex, newIndex: newIndex });
   },
 
   /** */

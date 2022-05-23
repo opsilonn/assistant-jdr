@@ -133,6 +133,27 @@ export default class Playlist {
   }
 
   /**
+   *
+   * @param {Number} oldIndex
+   * @param {Number} newIndex
+   * @returns {Promise<Playlist>}
+   */
+  static async move(oldIndex, newIndex) {
+    // Get all the playlists
+    const playlists = await this.getAll();
+
+    // 2 - move the playlist in the list
+    const playlist = playlists[oldIndex];
+    playlists.splice(oldIndex, 1);
+    playlists.splice(newIndex, 0, playlist);
+
+    // 3 - save and return playlist
+    writeFile(pathFile, JSON.stringify(playlists, null, 2), "utf8");
+
+    return playlists;
+  }
+
+  /**
    * @param {String} id
    */
   static async delete(id) {

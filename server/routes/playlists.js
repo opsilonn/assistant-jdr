@@ -5,6 +5,7 @@ import getPlaylists from "../controllers/playlist/get.playlists.js";
 import getPlaylistSaved from "../controllers/playlist/get.playlist.saved.js";
 import postPlaylist from "../controllers/playlist/post.playlist.js";
 import putPlaylist from "../controllers/playlist/put.playlist.js";
+import putPlaylistMove from "../controllers/playlist/put.playlist.move.js";
 import putPlaylistReset from "../controllers/playlist/put.playlist.reset.js";
 import putPlaylistSave from "../controllers/playlist/put.playlist.save.js";
 import deletePlaylist from "../controllers/playlist/delete.playlist.js";
@@ -16,10 +17,11 @@ import putPlaylistItemMove from "../controllers/playlist/put.playlist.audio.move
 
 const router = Router();
 // Playlist
-router.get("/playlist/:idPlaylist", getPlaylist);
 router.get("/playlists", getPlaylists);
+router.get("/playlist/:idPlaylist", getPlaylist);
 router.get("/playlist/:idPlaylist/saved", getPlaylistSaved);
 router.post("/playlist", postPlaylist);
+router.put("/playlists/move", putPlaylistMove);
 router.put("/playlist/:idPlaylist", putPlaylist);
 router.put("/playlist/:idPlaylist/reset", putPlaylistReset);
 router.put("/playlist/:idPlaylist/save", putPlaylistSave);
