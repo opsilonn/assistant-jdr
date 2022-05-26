@@ -74,6 +74,11 @@ export default class Playlist {
    * @returns {Promise<Playlist[]>}
    */
   static async getAll(path = pathFile) {
+    if (!fs.existsSync(path)) {
+      writeFile(path, JSON.stringify([], null, 2), "utf8");
+      return JSON.parse([]);
+    }
+
     // Read the audio
     const playlists = await readFile(path, "utf8");
 
