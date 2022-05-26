@@ -37,10 +37,10 @@
               </center>
 
               <!-- then, we iterate through playlists -->
-              <draggable draggable=".item" :list="[]" @end="DnD_movePlaylist">
-                <div v-for="playlist in playlists" :key="playlist.id" class="item">
-                  <v-list shaped two-line>
-                    <v-list-item-group v-model="selectedPlaylistIndex" color="primary">
+              <v-list shaped two-line>
+                <v-list-item-group v-model="selectedPlaylistIndex" color="primary">
+                  <draggable draggable=".item" :list="[]" @end="DnD_movePlaylist">
+                    <div v-for="playlist in playlists" :key="playlist.id" class="item">
                       <v-list-item :key="`playlist_${playlist.id}`">
                         <v-list-item-icon>
                           <v-icon v-text="'mdi-music-note'" />
@@ -55,10 +55,10 @@
                           <v-icon color="grey lighten-1" v-text="'mdi-dots-vertical'" @click="openDialogEdit(playlist.id)" />
                         </v-list-item-action>
                       </v-list-item>
-                    </v-list-item-group>
-                  </v-list>
-                </div>
-              </draggable>
+                    </div>
+                  </draggable>
+                </v-list-item-group>
+              </v-list>
             </v-col>
 
             <!-- divider -->
@@ -124,7 +124,7 @@ export default {
     FooterAudio,
     Loader,
     TreeviewAudio,
-    draggable
+    draggable,
   },
 
   data: () => ({
@@ -148,17 +148,6 @@ export default {
     ...mapState("playlist", ["playlists"]),
     ...mapState("audioPlayer", ["audioCategories"]),
 
-    playlistsToInteractWith: {
-      get() {
-        return this.playlists;
-      },
-      set(value) {
-        this.playlists.forEach(p => console.log(p.name, ' - ', p.id));
-        value.forEach(p => console.log(p.name, ' - ', p.id));
-        // this.$store.commit('updateList', value)
-      },
-    },
-
     /** */
     playlistIds() {
       return this.playlists.map((_) => _.id);
@@ -169,8 +158,10 @@ export default {
     /** Allows to select the latest playlist if one is added, or deselect if one is deleted */
     playlistIds(newValue, oldValue) {
       if (oldValue.length < newValue.length) {
+        // a playlist is added
         this.selectedPlaylistIndex = this.playlists.length - 1;
       } else if (oldValue.length > newValue.length) {
+        // a playlist is deleted
         this.selectedPlaylistIndex = -1;
       }
     },
@@ -236,12 +227,13 @@ export default {
 
     /** */
     async newPlaylist(newPlaylist) {
-      const x = await this.createPlaylist(newPlaylist);
+      await this.createPlaylist(newPlaylist);
       this.dialogPlaylist = false;
     },
+
     /** */
     DnD_movePlaylist(event) {
-      this.movePlaylist({oldIndex : event.oldIndex, newIndex: event.newIndex });
+      this.movePlaylist({ oldIndex: event.oldIndex, newIndex: event.newIndex });
     },
   },
 
