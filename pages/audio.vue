@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Waiting to load data... -->
-    <Loader v-if="!isPageLoaded" message="Chargement des données..." />
+    <Loader v-if="isPageLoading" message="Chargement des données..." />
 
     <!-- data loaded ! -->
     <div v-else>
@@ -18,7 +18,7 @@
       <v-tabs-items v-model="selectedTabIndex">
         <!-- Dynamically create tab view for audio categories -->
         <v-tab-item v-for="(tab, i) in audioCategories" :key="`tab_item_category${i}`" :transition="false" class="scroll">
-          <v-list v-if="isPageLoaded">
+          <v-list>
             <TreeviewAudio :audioFolder="getAudioFolderByTitle(tab.title)" :enablePlay="true" />
           </v-list>
         </v-tab-item>
@@ -128,8 +128,7 @@ export default {
   },
 
   data: () => ({
-    // Whether the page is loaded or not
-    isPageLoaded: false,
+    isPageLoading: true,
 
     // All tabs related
     tabPlaylist: { title: "Playlist", icon: "mdi-playlist-music" },
@@ -183,7 +182,7 @@ export default {
 
     this.selectedPlaylistIndex = -1;
 
-    this.isPageLoaded = true;
+    this.isPageLoading = false;
   },
 
   methods: {
