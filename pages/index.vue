@@ -5,7 +5,7 @@
         <v-card class="zoom-sm" max-width="374" :to="item.route">
           <v-img :src="item.src" contains />
 
-          <v-divider class="mx-4"></v-divider>
+          <v-divider class="mx-4" />
 
           <v-card-title>{{ item.title }}</v-card-title>
         </v-card>
@@ -26,12 +26,8 @@ export default {
   mixins: [MixinCss],
 
   data: () => ({
-    items: [],
+    items: EnumRouter,
   }),
-
-  mounted() {
-    this.items = EnumRouter;
-  },
 
   head() {
     return { title: "index" };
