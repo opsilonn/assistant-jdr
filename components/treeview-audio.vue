@@ -208,6 +208,10 @@ export default {
 
     /** */
     endDnD(event) {
+      if (!this.enableDnd) {
+        return;
+      }
+
       const isFromDatabase = event.from.className.includes("database");
       const isFromPlaylist = event.from.className.includes("playlist");
       const isToDatabase = event.to.className.includes("database");
