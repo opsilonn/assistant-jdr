@@ -1,6 +1,6 @@
 // Imports
 import { Howl } from "howler";
-const INDEX = 2;
+const INDEX_OF_CATEGORY_NAME = 2;
 
 const state = () => ({
   audioCategories: [
@@ -43,7 +43,7 @@ const mutations = {
   /** */
   setAudio(state, audio) {
     // We get the category's index
-    const category = state.audioCategories.find((tab) => audio.path.split("/")[INDEX].includes(tab.title));
+    const category = state.audioCategories.find((tab) => audio.path.split("/")[INDEX_OF_CATEGORY_NAME].includes(tab.title));
 
     // If not found : ERROR
     if (!category) {
