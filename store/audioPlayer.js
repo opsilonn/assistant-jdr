@@ -5,6 +5,7 @@ const INDEX_OF_CATEGORY_NAME = 2;
 const state = () => ({
   audioCategories: [
     {
+      id: 1,
       title: "Ambiance",
       icon: "mdi-city-variant-outline",
       audio: {},
@@ -15,6 +16,7 @@ const state = () => ({
       volume: 1,
     },
     {
+      id: 2,
       title: "Musique",
       icon: "mdi-music-note",
       audio: {},
@@ -25,6 +27,7 @@ const state = () => ({
       volume: 1,
     },
     {
+      id: 3,
       title: "SFX",
       icon: "mdi-ear-hearing",
       audio: {},
@@ -86,29 +89,29 @@ const mutations = {
   },
 
   /**
-   * Sets the volume of a specific track
-   * @param {String} title Title of the track to update
+   * Sets the volume of a specific category
+   * @param {int} id identifier of the category to update
    */
-  setVolume(state, title) {
+  setVolume(state, id) {
     // We get the category
-    const category = state.audioCategories.find((_) => _.title === title);
+    const category = state.audioCategories.find((_) => _.id === id);
 
     // If a file, is loaded, we set the volume accordingly
-    if (!!category.howl) {
+    if (!!category?.howl) {
       category.howl.volume(category.volume);
     }
   },
 
   /**
-   * Either plays or pauses a specific track
-   * @param {String} title Title of the track to update
+   * Either plays or pauses the track of a specific category
+   * @param {int} id identifier of the category to update
    */
-  setPlayOrPause(state, title) {
+  setPlayOrPause(state, id) {
     // We get the category
-    const category = state.audioCategories.find((_) => _.title === title);
+    const category = state.audioCategories.find((_) => _.id === id);
 
     // If a file, is loaded, we play or pause it accordingly
-    if (!!category.howl) {
+    if (!!category?.howl) {
       category.play = !category.play;
       if (category.play) {
         category.howl.play();
@@ -119,15 +122,15 @@ const mutations = {
   },
 
   /**
-   * Either enables or disables the loop a specific track
-   * @param {String} title Title of the track to update
+   * Either enables or disables the loop of a specific category
+   * @param {int} id identifier of the category to update
    */
-  setLoop(state, title) {
+  setLoop(state, id) {
     // We get the category
-    const category = state.audioCategories.find((_) => _.title === title);
+    const category = state.audioCategories.find((_) => _.id === id);
 
     // If a file, is loaded, we (dis)enable the loop it accordingly
-    if (!!category.howl) {
+    if (!!category?.howl) {
       category.loop = !category.loop;
       category.howl.loop(category.loop);
     }
@@ -135,8 +138,8 @@ const mutations = {
 
   /** Stops all tracks that are being played */
   stopAllAudioTracks(state) {
-    state.audioCategories.forEach((tab) => {
-      if (!!tab.howl) {
+    state.audioCategories.forEach((category) => {
+      if (!!category?.howl) {
         tab.howl.pause();
       }
     });

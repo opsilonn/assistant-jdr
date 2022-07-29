@@ -2,7 +2,7 @@
   <!-- Dashboard (fixed to the bottom) -->
   <v-footer fixed padless>
     <v-card flat tile width="100%" class="text-center grey darken-3">
-      <div v-for="(tab, i) in audioCategories" :key="i">
+      <div v-for="(tab, i) in audioCategories" :key="tab.id">
         <v-row align="center">
           <!-- col 1 - category -->
           <v-col cols="3">
@@ -47,12 +47,12 @@
               </v-col>
               <v-col cols="6">
                 <!-- button play / pause -->
-                <v-btn icon @click="setPlayOrPause(tab.title)">
+                <v-btn icon @click="setPlayOrPause(tab.id)">
                   <v-icon v-text="tab.play ? 'mdi-pause' : 'mdi-play'" />
                 </v-btn>
 
                 <!-- button loop -->
-                <v-btn icon @click="setLoop(tab.title)">
+                <v-btn icon @click="setLoop(tab.id)">
                   <v-icon v-text="'mdi-autorenew'" :disabled="!tab.loop" />
                 </v-btn>
               </v-col>
@@ -83,6 +83,7 @@ export default {
     /** */
     audioCategoriesVolumes() {
       return this.audioCategories.map((_) => ({
+        id: _.id,
         title: _.title,
         volume: _.volume
       }));
@@ -94,7 +95,7 @@ export default {
     audioCategoriesVolumes(newValue, oldValue) {
       for (let i = 0; i < oldValue.length; i++) {
         if (oldValue[i].volume !== newValue[i].volume) {
-          this.setVolume(oldValue[i].title);
+          this.setVolume(oldValue[i].id);
           return;
         }
       }
