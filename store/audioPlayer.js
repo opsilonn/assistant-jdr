@@ -129,9 +129,10 @@ const mutations = {
     // We get the category
     const category = state.audioCategories.find((_) => _.id === id);
 
+    category.loop = !category.loop;
+
     // If a file, is loaded, we (dis)enable the loop it accordingly
     if (!!category?.howl) {
-      category.loop = !category.loop;
       category.howl.loop(category.loop);
     }
   },
