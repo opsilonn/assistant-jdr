@@ -37,7 +37,7 @@
               </center>
 
               <!-- then, we iterate through playlists -->
-              <v-list shaped two-line>
+              <v-list shaped two-line v-if="playlistListIsReady">
                 <v-list-item-group v-model="selectedPlaylistIndex" color="primary">
                   <draggable draggable=".item" :list="[]" @end="DnD_movePlaylist">
                     <div v-for="playlist in playlists" :key="playlist.id" class="item">
@@ -135,6 +135,7 @@ export default {
     tabs: [],
     selectedTabIndex: null,
     selectedPlaylistIndex: -1,
+    playlistListIsReady: true,
 
     dialogPlaylist: false,
     currentPlaylistId: "",
@@ -231,8 +232,18 @@ export default {
     },
 
     /** */
-    DnD_movePlaylist(event) {
-      this.movePlaylist({ oldIndex: event.oldIndex, newIndex: event.newIndex });
+    async DnD_movePlaylist(event) {
+      this.playlistListIsReady = false;
+      await this.movePlaylist({ oldIndex: event.oldIndex, newIndex: event.newIndex });
+      if (this.selectedPlaylistIndex === event.oldIndex) {
+        this.selectedPlaylistIndex = event.newIndex;
+      }
+
+      // Why this stupid code ?
+      // When you DnD a playlist in the list, the v-list-group doesn't register the changes, 
+      // And the playlist that was First before, is still considered First after, even if it was moved elsewhere
+      // TL&DR : I didn't find a way to solve the issue
+      this.playlistListIsReady = true;
     },
   },
 

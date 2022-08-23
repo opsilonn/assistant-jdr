@@ -51,6 +51,7 @@ const mutations = {
     const playlist = state.playlists[oldIndex];
     state.playlists.splice(oldIndex, 1);
     state.playlists.splice(newIndex, 0, playlist);
+    state.playlists = [...state.playlists];
   },
 
   /**
