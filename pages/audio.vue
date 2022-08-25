@@ -131,7 +131,6 @@ export default {
     isPageLoading: true,
 
     // All tabs related
-    tabPlaylist: { title: "Playlist", icon: "mdi-playlist-music" },
     tabs: [],
     selectedTabIndex: null,
     selectedPlaylistIndex: -1,
@@ -170,7 +169,8 @@ export default {
   async mounted() {
     // We set the tabs
     const tabsCategory = JSON.parse(JSON.stringify(this.audioCategories));
-    this.tabs = tabsCategory.concat([this.tabPlaylist]);
+    const tabPlaylist = { title: "Playlist", icon: "mdi-playlist-music" };
+    this.tabs = tabsCategory.concat([tabPlaylist]);
 
     // We fetch the audio data
     await this.fetchAudioFolder();
