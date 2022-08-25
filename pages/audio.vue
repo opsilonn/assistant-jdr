@@ -157,6 +157,7 @@ export default {
   watch: {
     /** Allows to select the latest playlist if one is added, or deselect if one is deleted */
     playlistIds(newValue, oldValue) {
+      // Must be watched here, since the creation / deletion is done in another component
       if (oldValue.length < newValue.length) {
         // a playlist is added
         this.selectedPlaylistIndex = this.playlists.length - 1;
