@@ -225,12 +225,6 @@ export default {
     },
 
     /** */
-    async newPlaylist(newPlaylist) {
-      await this.createPlaylist(newPlaylist);
-      this.dialogPlaylist = false;
-    },
-
-    /** */
     async DnD_movePlaylist(event) {
       this.playlistListIsReady = false;
       await this.movePlaylist({ oldIndex: event.oldIndex, newIndex: event.newIndex });
