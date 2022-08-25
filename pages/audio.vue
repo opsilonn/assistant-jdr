@@ -130,14 +130,15 @@ export default {
   data: () => ({
     isPageLoading: true,
 
-    // All tabs related
+    // Tabs related
     tabs: [],
     selectedTabIndex: null,
-    selectedPlaylistIndex: -1,
-    playlistListIsReady: true,
 
-    dialogPlaylist: false,
+    // Playlists related
+    playlistListIsReady: true,
+    selectedPlaylistIndex: -1,
     currentPlaylistId: "",
+    dialogPlaylist: false,
     dialogPlaylistAudio: false,
   }),
 
