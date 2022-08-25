@@ -13,7 +13,7 @@ const state = () => ({
       play: false,
       loop: false,
       error: false,
-      volume: 1,
+      volume: 0.75,
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ const state = () => ({
       play: false,
       loop: false,
       error: false,
-      volume: 1,
+      volume: 0.75,
     },
     {
       id: 3,
@@ -35,7 +35,7 @@ const state = () => ({
       play: false,
       loop: false,
       error: false,
-      volume: 1,
+      volume: 0.75,
     },
   ],
 });
