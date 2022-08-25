@@ -10,9 +10,9 @@ const state = () => ({
       icon: "mdi-city-variant-outline",
       audio: {},
       howl: undefined,
-      play: false,
-      loop: false,
-      error: false,
+      isPlaying: false,
+      isLooping: false,
+      hasError: false,
       volume: 0.75,
     },
     {
@@ -21,9 +21,9 @@ const state = () => ({
       icon: "mdi-music-note",
       audio: {},
       howl: undefined,
-      play: false,
-      loop: false,
-      error: false,
+      isPlaying: false,
+      isLooping: false,
+      hasError: false,
       volume: 0.75,
     },
     {
@@ -32,9 +32,9 @@ const state = () => ({
       icon: "mdi-ear-hearing",
       audio: {},
       howl: undefined,
-      play: false,
-      loop: false,
-      error: false,
+      isPlaying: false,
+      isLooping: false,
+      hasError: false,
       volume: 0.75,
     },
   ],
@@ -61,29 +61,29 @@ const mutations = {
 
     // We set some values
     category.audio = audio;
-    category.play = true;
+    category.isPlaying = true;
     category.howl = new Howl({
       src: [audio.path],
-      loop: category.loop,
+      loop: category.isLooping,
       volume: category.volume,
     });
 
     // We play the audio file
     category.howl.play();
-    category.error = false;
+    category.hasError = false;
 
     // When it ends, and if loop is disabled : disable the play flag
     category.howl.on("end", () => {
-      if (!category.loop) {
-        category.play = false;
+      if (!category.isLooping) {
+        category.isPlaying = false;
       }
     });
 
     // If it fails to load
     category.howl.on("loaderror", () => {
-      category.play = false;
+      category.isPlaying = false;
       category.howl = null;
-      category.error = true;
+      category.hasError = true;
       alert(`Piste audio non trouvée\n - nom : ${audio.name}\n - chemin : ${audio.path}`);
     });
   },
@@ -112,8 +112,8 @@ const mutations = {
 
     // If a file, is loaded, we play or pause it accordingly
     if (!!category?.howl) {
-      category.play = !category.play;
-      if (category.play) {
+      category.isPlaying = !category.isPlaying;
+      if (category.isPlaying) {
         category.howl.play();
       } else {
         category.howl.pause();
@@ -129,11 +129,11 @@ const mutations = {
     // We get the category
     const category = state.audioCategories.find((_) => _.id === id);
 
-    category.loop = !category.loop;
+    category.isLooping = !category.isLooping;
 
     // If a file, is loaded, we (dis)enable the loop it accordingly
     if (!!category?.howl) {
-      category.howl.loop(category.loop);
+      category.howl.loop(category.isLooping);
     }
   },
 
