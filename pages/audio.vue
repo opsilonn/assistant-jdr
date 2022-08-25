@@ -198,8 +198,7 @@ export default {
      * @param {String} name Title of the folder to find
      */
     getAudioFolderByTitle(name) {
-      const folder = this.audioFolder.find((folder) => folder.name === name);
-      return folder ? folder.children : folder;
+      return this.audioFolder.find((folder) => folder.name === name).children;
     },
 
     /** */
