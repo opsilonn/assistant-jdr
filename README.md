@@ -9,7 +9,7 @@ Actuellement, il contient :
 
 Node.js est nécessaire pour faire fonctionner le projet, et peut être [téléchargé ici](https://nodejs.org/en)
 
-Il faut **impérativement** créer le fichier */server/local.server.config.js* avec le contenu suivant, (qui peut être trouvé dans le [fichier suivant](https://github.com/opsilonn/jdr-tools/blob/main/server/local.server.config.example.js)):
+Il faut **impérativement** créer le fichier */server/local.server.config.js* avec le contenu suivant, (qui peut être trouvé dans le [fichier suivant](https://github.com/opsilonn/outils-jdr-js/blob/main/server/local.server.config.example.js)):
 
 ```js
 module.exports = {
@@ -98,4 +98,4 @@ Ainsi, le projet peut ressembler à :
 Ce projet a été fait par les personnes suivantes :
 * **BEGEOT Hugues** - [son dépôt  GitHub](https://github.com/opsilonn)
 
-Voir aussi [la liste des contributeurs](https://github.com/opsilonn/efrei-m1-otter-quiz/graphs/contributors) qui ont participaté au projet.
+Voir aussi [la liste des contributeurs](https://github.com/opsilonn/outils-jdr-js/graphs/contributors) qui ont participaté au projet.
